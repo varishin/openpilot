@@ -61,7 +61,7 @@ class opParams:
 
     VT = ValueTypes()
     self.fork_params = {'awareness_factor': Param(10., VT.number, 'Multiplier for the awareness times'),
-                        'alca_min_speed': Param(20, VT.number, 'Speed limit to start ALC in MPH'),
+                        'alca_min_speed': Param(35., VT.number, 'Speed limit to start ALC in MPH'),
                         'alca_nudge_required': Param(False, bool, "Require nudge to start ALC"),
                         'camera_offset': Param(0.06, VT.number, 'Your camera offset to use in lane_planner.py', live=True),
                         'curvature_factor': Param(1.2, VT.number, 'Multiplier for the curvature slowdown. Increase for less braking.'),
@@ -75,7 +75,7 @@ class opParams:
                                                                         'Smaller values will get you closer, larger will get you farther\n'
                                                                         'This is multiplied by any profile that\'s active. Set to None to disable', live=True),
                         'hide_auto_df_alerts': Param(True, bool, 'Hides the alert that shows what profile the model has chosen'),
-                        'keep_openpilot_engaged': Param(True, bool, 'True is stock behavior in this fork. False lets you use the brake and cruise control stalk to disengage as usual'),
+                        'keep_openpilot_engaged': Param(False, bool, 'True is stock behavior in this fork. False lets you use the brake and cruise control stalk to disengage as usual'),
                         'limit_rsa': Param(False, bool, "Switch off RSA above rsa_max_speed"),
                         'mpc_offset': Param(0.0, VT.number, 'Offset model braking by how many m/s. Lower numbers equals more model braking', live=True),
                         'offset_limit': Param(0, VT.number, 'Speed at which apk percent offset will work in m/s'),
@@ -83,10 +83,10 @@ class opParams:
                         'rolling_stop': Param(False, bool, 'If you do not want stop signs to go down to 0 kph enable this for 9kph slow down'),
                         'rsa_max_speed': Param(24.5, VT.number, 'Speed limit to ignore RSA in m/s'),
                         'smart_speed': Param(True, bool, 'Whether to use Smart Speed for drives above smart_speed_max_vego'),
-                        'smart_speed_max_vego': Param(26.8, VT.number, 'Speed limit to ignore Smartspeed in m/s'),
+                        'smart_speed_max_vego': Param(33., VT.number, 'Speed limit to ignore Smartspeed in m/s'),
                         'spairrowtuning': Param(False, bool, 'Better Tuning for Corolla'),
                         'speed_offset': Param(0, VT.number, 'Speed limit offset in m/s', live=True),
-                        'traffic_light_alerts': Param(False, bool, "Switch off the traffic light alerts"),
+                        'traffic_light_alerts': Param(True, bool, "Switch off the traffic light alerts"),
                         'traffic_lights': Param(False, bool, "Should Openpilot stop for traffic lights"),
                         'traffic_lights_without_direction': Param(False, bool, "Should Openpilot stop for traffic lights without a direction specified"),
                         'use_car_caching': Param(True, bool, 'Whether to use fingerprint caching'),

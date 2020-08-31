@@ -1,6 +1,13 @@
 import numpy as np
 from common.numpy_fast import clip, interp
 
+
+GainSaS_BP = [0., 2., 5., 10.]
+Gain_g = [0., .01, .08, .12]
+
+GainV_BP = [0., 20., 20.01, 30.]
+Gain_V = [0.3, .6, .9, 1.1]
+
 def apply_deadzone(error, deadzone):
   if error > deadzone:
     error -= deadzone
@@ -64,7 +71,7 @@ class PIController:
     self.f = feedforward * self.k_f
 
     if override:
-     self.i -= self.i_unwind_rate * float(np.sign(self.i))
+      self.i -= self.i_unwind_rate * float(np.sign(self.i))
     else:
       i = self.i + error * self.k_i * self.i_rate
       control = self.p + self.f + i
@@ -220,7 +227,7 @@ class PIControllerk_f:
   @property
   def k_f(self):
     return interp(self.speed, self._k_f[0], self._k_f[1])
-  
+
   def _check_saturation(self, control, check_saturation, error):
     saturated = (control < self.neg_limit) or (control > self.pos_limit)
 
@@ -244,12 +251,14 @@ class PIControllerk_f:
   def update(self, setpoint, measurement, speed=0.0, check_saturation=True, override=False, feedforward=0., deadzone=0., freeze_integrator=False):
     self.speed = speed
 
+    self.nl_p = interp(abs(setpoint), GainSaS_BP, Gain_g) * interp(self.speed, GainV_BP, Gain_V)
+
     error = float(apply_deadzone(setpoint - measurement, deadzone))
-    self.p = error * self.k_p
+    self.p = error * (self.k_p + self.nl_p)
     self.f = feedforward * self.k_f
 
     if override:
-     self.i -= self.i_unwind_rate * float(np.sign(self.i))
+      self.i -= self.i_unwind_rate * float(np.sign(self.i))
     else:
       i = self.i + error * self.k_i * self.i_rate
       control = self.p + self.f + i
