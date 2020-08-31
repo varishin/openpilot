@@ -1,5 +1,3 @@
-from numpy import interp
-
 from cereal import car, messaging
 from common import op_params
 from common.realtime import DT_CTRL
@@ -12,12 +10,6 @@ from selfdrive.config import Conversions as CV
 from selfdrive.controls.lib.pathplanner import LANE_CHANGE_SPEED_MIN
 
 from common.travis_checker import travis
-
-splmoffsetmphBp = [30, 40, 55, 60, 70]
-splmoffsetmphV = [0, 0, 0, 0, 0]
-
-splmoffsetkphBp = [30, 40, 55, 70]
-splmoffsetkphV = [0, 0, 0, 0]
 
 VisualAlert = car.CarControl.HUDControl.VisualAlert
 
@@ -62,8 +54,6 @@ class CarController():
     self.currentspeed = 0
     self.smartspeed_old = 0
     self.smartspeedupdate = False
-    self.fixed_offset = 0
-    self.button_stop = 0
     if not travis:
       self.sm = messaging.SubMaster(['liveMapData'])
 
@@ -131,7 +121,7 @@ class CarController():
 
     if pcm_cancel_cmd:
       can_sends.append(create_clu11(self.packer, frame, 0, CS.clu11, Buttons.CANCEL, self.currentspeed))
-    elif CS.out.cruiseState.standstill and CS.vrelative > 0:
+    elif CS.out.standstill and CS.rawcruiseStateenabled and enabled and CS.vrelative > 0:
       can_sends.append(create_clu11(self.packer, frame, 0, CS.clu11, Buttons.RES_ACCEL, self.currentspeed))
 
     # 20 Hz LFA MFA message
@@ -147,39 +137,32 @@ class CarController():
       self.smartspeed = self.sm['liveMapData'].speedLimitAhead
       if CS.is_set_speed_in_mph:
         self.smartspeed = self.sm['liveMapData'].speedLimit * CV.MS_TO_MPH
-        self.fixed_offset = interp(self.smartspeed, splmoffsetmphBp, splmoffsetmphV)
+       # self.fixed_offset = op_params.get('speed_offset')
         self.setspeed = CS.cruisesetspeed * CV.MS_TO_MPH
         self.minsetspeed = 20 * CV.MPH_TO_MS * CV.MS_TO_MPH
-        self.currentspeed = int(CS.out.vEgo * CV.MS_TO_MPH)
+        self.currentspeed = CS.out.vEgo * CV.MS_TO_MPH
+
       else:
         self.smartspeed = self.sm['liveMapData'].speedLimit * CV.MS_TO_KPH
-        self.fixed_offset = interp(self.smartspeed, splmoffsetkphBp, splmoffsetkphV)
         self.setspeed = CS.cruisesetspeed * CV.MS_TO_KPH
         self.minsetspeed = 20 * CV.MPH_TO_MS * CV.MS_TO_KPH
-        self.currentspeed = int(CS.out.vEgo * CV.MS_TO_KPH)
+        self.currentspeed = CS.out.vEgo * CV.MS_TO_KPH
 
     if self.smartspeed_old != self.smartspeed:
       self.smartspeedupdate = True
-      self.smartspeed = self.smartspeed + self.fixed_offset
 
     if enabled and CS.rawcruiseStateenabled and self.smartspeedupdate and (CS.cruise_buttons != 4)\
             and (self.minsetspeed <= self.smartspeed):
         if self.setspeed > (self.smartspeed * 1.005):
           can_sends.append(create_clu11(self.packer, frame, 0, CS.clu11, Buttons.SET_DECEL, self.currentspeed))
           if CS.cruise_buttons == 1:
-             self.button_stop +=1
-          else:
-             self.button_stop = 0
+            self.smartspeedupdate = False
         elif self.setspeed < (self.smartspeed / 1.005):
           can_sends.append(create_clu11(self.packer, frame, 0, CS.clu11, Buttons.RES_ACCEL, self.currentspeed))
           if CS.cruise_buttons == 2:
-             self.button_stop +=1
-          else:
-             self.button_stop = 0
-        else:
-          self.button_stop = 0
+            self.smartspeedupdate = False
 
-        if abs(self.smartspeed - self.setspeed) < 0.5 or self.button_stop > 100:
+        if abs(self.smartspeed - self.setspeed) < 0.5:
           self.smartspeedupdate = False
 
     return can_sends
