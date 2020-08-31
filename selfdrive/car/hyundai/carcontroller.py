@@ -121,7 +121,7 @@ class CarController():
 
     if pcm_cancel_cmd:
       can_sends.append(create_clu11(self.packer, frame, 0, CS.clu11, Buttons.CANCEL, self.currentspeed))
-    elif CS.out.standstill and CS.rawcruiseStateenabled and enabled and CS.out.vrelative > 0:
+    elif CS.out.standstill and CS.rawcruiseStateenabled and enabled and CS.vrelative > 0:
       can_sends.append(create_clu11(self.packer, frame, 0, CS.clu11, Buttons.RES_ACCEL, self.currentspeed))
 
     # 20 Hz LFA MFA message
