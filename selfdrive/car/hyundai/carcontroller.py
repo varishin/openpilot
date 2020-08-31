@@ -160,7 +160,7 @@ class CarController():
 
     if self.smartspeed_old != self.smartspeed:
       self.smartspeedupdate = True
-      self.smartspeed = self.smartspeed + self.fixed_offset
+      self.smartspeed = self.smartspeed + int(self.fixed_offset)
 
     if enabled and CS.rawcruiseStateenabled and self.smartspeedupdate and (CS.cruise_buttons != 4)\
             and (self.minsetspeed <= self.smartspeed):
