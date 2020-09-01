@@ -54,15 +54,17 @@ void dos_set_gps_load_switch(bool enabled) {
 }
 
 void dos_set_bootkick(bool enabled){
-  set_gpio_output(GPIOC, 4, !enabled);
+  UNUSED(enabled);
 }
+
+void dos_bootkick(void) {}
 
 void dos_set_phone_power(bool enabled){
   UNUSED(enabled);
 }
 
 void dos_set_usb_power_mode(uint8_t mode) {
-  dos_set_bootkick(mode == USB_POWER_CDP);
+  UNUSED(mode);
 }
 
 void dos_set_esp_gps_mode(uint8_t mode) {
@@ -99,6 +101,11 @@ void dos_set_can_mode(uint8_t mode){
 
 void dos_usb_power_mode_tick(uint32_t uptime){
   UNUSED(uptime);
+  if(bootkick_timer != 0U){
+    bootkick_timer--;
+  } else {
+    dos_set_bootkick(false);
+  }
 }
 
 bool dos_check_ignition(void){
@@ -123,14 +130,6 @@ void dos_set_fan_power(uint8_t percentage){
 uint32_t dos_read_current(void){
   // No current sense on Dos
   return 0U;
-}
-
-void dos_set_clock_source_mode(uint8_t mode){
-  clock_source_init(mode);
-}
-
-void dos_set_siren(bool enabled){
-  set_gpio_output(GPIOC, 12, enabled);
 }
 
 void dos_init(void) {
@@ -190,9 +189,6 @@ void dos_init(void) {
 
   // init multiplexer
   can_set_obd(car_harness_status, false);
-
-  // Init clock source as internal free running
-  dos_set_clock_source_mode(CLOCK_SOURCE_MODE_FREE_RUNNING);
 }
 
 const harness_configuration dos_harness_config = {
@@ -224,7 +220,5 @@ const board board_dos = {
   .read_current = dos_read_current,
   .set_fan_power = dos_set_fan_power,
   .set_ir_power = dos_set_ir_power,
-  .set_phone_power = dos_set_phone_power,
-  .set_clock_source_mode = dos_set_clock_source_mode,
-  .set_siren = dos_set_siren
+  .set_phone_power = dos_set_phone_power
 };
