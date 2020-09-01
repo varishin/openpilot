@@ -159,7 +159,7 @@ ECU_FINGERPRINT = {
 }
 
 # Don't use these fingerprints for fingerprinting, they are still used for ECU detection
-IGNORED_FINGERPRINTS = [CAR.KIA_NIRO_HEV, KIA_SPORTAGE]
+IGNORED_FINGERPRINTS = [CAR.KIA_NIRO_HEV, CAR.KIA_SPORTAGE]
 
 FW_VERSIONS = {
   CAR.SONATA: {
