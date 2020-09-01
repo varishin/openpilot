@@ -16,9 +16,8 @@ def get_git_branch(default=None):
     return subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"], encoding='utf8').strip()
   except subprocess.CalledProcessError:
     return default
-tested_branch = False
 dirty = True
-comma_remote = False
+arne_remote = False
 try:
   local_branch = subprocess.check_output(["git", "name-rev", "--name-only", "HEAD"], encoding='utf8').strip()
   tracking_remote = subprocess.check_output(["git", "config", "branch." + local_branch + ".remote"], encoding='utf8').strip()
@@ -30,12 +29,13 @@ except subprocess.CalledProcessError:
     origin = subprocess.check_output(["git", "config", "--get", "remote.origin.url"], encoding='utf8').strip()
   except subprocess.CalledProcessError:
     origin = None
-if (origin is not None) and (branch is not None):
-  comma_remote = origin.startswith('git@github.com:arne182') or origin.startswith('https://github.com/arne182')
-  tested_branch = get_git_branch() in ['release2', 'release3', 'release4', 'release5', 'release6']
-dirty = not comma_remote
-dirty = dirty or (subprocess.call(["git", "diff-index", "--quiet", branch, "--"]) != 0)
 branch = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"], encoding='utf8').strip()
+
+if (origin is not None) and (branch is not None):
+  arne_remote = origin.startswith('git@github.com:arne182') or origin.startswith('https://github.com/arne182')
+
+dirty = not arne_remote
+dirty = dirty or (subprocess.call(["git", "diff-index", "--quiet", branch, "--"]) != 0)
 
 from selfdrive.swaglog import cloudlog
 from common.android import ANDROID
