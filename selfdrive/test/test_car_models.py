@@ -203,7 +203,7 @@ routes = {
     'enableCamera': True,
   },
   "2c5cf2dd6102e5da|2020-06-26--16-00-08": {
-    'carFingerprint': HYUNDAI.IONIQ,
+    'carFingerprint': HYUNDAI.IONIQ_HEV,
     'enableCamera': True,
   },
   "5dddcbca6eb66c62|2020-07-26--13-24-19": {
@@ -446,7 +446,7 @@ non_tested_cars = [
   HYUNDAI.HYUNDAI_GENESIS,
   HYUNDAI.KIA_FORTE,
   HYUNDAI.KIA_OPTIMA,
-  HYUNDAI.KIA_OPTIMA_H,
+  HYUNDAI.KIA_OPTIMA_HEV,
   HYUNDAI.KONA,
   HYUNDAI.KONA_EV,
   NISSAN.XTRAIL,
