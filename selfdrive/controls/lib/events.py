@@ -234,12 +234,12 @@ class EngagementAlert(Alert):
 
 def below_steer_speed_alert(CP, sm, metric):
   speed = int(round(CP.minSteerSpeed * (CV.MS_TO_KPH if metric else CV.MS_TO_MPH)))
-  unit = "km/h" if metric else "mph"
+  unit = "kph" if metric else "mph"
   return Alert(
     "TAKE CONTROL",
     "Steer Unavailable Below %d %s" % (speed, unit),
     AlertStatus.userPrompt, AlertSize.mid,
-    Priority.MID, VisualAlert.none, AudibleAlert.none, 0., 0.4, .3)
+    Priority.MID, VisualAlert.steerRequired, AudibleAlert.none, 0., 0.4, .3)
 
 def calibration_incomplete_alert(CP, sm, metric):
   speed = int(Filter.MIN_SPEED * (CV.MS_TO_KPH if metric else CV.MS_TO_MPH))
@@ -280,9 +280,9 @@ EVENTS = {
   EventName.startup: {
     ET.PERMANENT: Alert(
       "Be ready to take over at any time",
-      "Always keep hands on wheel and eyes on road",
+      "Do not forget to PRAY!",
       AlertStatus.normal, AlertSize.mid,
-      Priority.LOWER, VisualAlert.none, AudibleAlert.none, 0., 0., 2.),
+      Priority.LOWER, VisualAlert.none, AudibleAlert.none, 0., 0., 7.),
   },
 
   EventName.startupWhitePanda: {
@@ -290,7 +290,7 @@ EVENTS = {
       "WARNING: White panda is deprecated",
       "Upgrade to comma two or black panda",
       AlertStatus.userPrompt, AlertSize.mid,
-      Priority.LOWER, VisualAlert.none, AudibleAlert.none, 0., 0., 2.),
+      Priority.LOWER, VisualAlert.none, AudibleAlert.none, 0., 0., 15.),
   },
 
   EventName.startupMaster: {
@@ -389,7 +389,7 @@ EVENTS = {
       "TAKE CONTROL",
       "Lane Departure Detected",
       AlertStatus.userPrompt, AlertSize.mid,
-      Priority.LOW, VisualAlert.none, AudibleAlert.none, 1., 2., 3.),
+      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.chimePrompt, 1., 2., 3.),
   },
 
   # ********** events only containing alerts that display while engaged **********
@@ -471,7 +471,7 @@ EVENTS = {
       "PLACE HANDS ON WHEEL:",
       "Hold wheel at all times",
       AlertStatus.normal, AlertSize.small,
-      Priority.LOW, VisualAlert.none, AudibleAlert.none, .0, .1, .1, alert_rate=0.75),
+      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.none, .0, .1, .1, alert_rate=0.75),
   },
 
   EventName.promptKeepHandsOnWheel: {
@@ -479,7 +479,7 @@ EVENTS = {
       "KEEP HANDS ON WHEEL",
       "Driver must keep hands on wheel",
       AlertStatus.userPrompt, AlertSize.mid,
-      Priority.MID, VisualAlert.none, AudibleAlert.chimeWarning2Repeat, .1, .1, .1),
+      Priority.MID, VisualAlert.steerRequired, AudibleAlert.chimeWarning2Repeat, .1, .1, .1),
   },
 
   EventName.keepHandsOnWheel: {
@@ -487,7 +487,7 @@ EVENTS = {
       "DISENGAGE IMMEDIATELY",
       "Driver must keep hands on steering wheel",
       AlertStatus.critical, AlertSize.full,
-      Priority.HIGH, VisualAlert.none, AudibleAlert.chimeWarningRepeat, .1, .1, .1),
+      Priority.HIGH, VisualAlert.steerRequired, AudibleAlert.chimeWarningRepeat, .1, .1, .1),
   },
 
   EventName.driverMonitorLowAcc: {
@@ -523,7 +523,7 @@ EVENTS = {
       "Steer Left to Start Lane Change",
       "Monitor Other Vehicles",
       AlertStatus.normal, AlertSize.mid,
-      Priority.LOW, VisualAlert.none, AudibleAlert.none, .0, .1, .1, alert_rate=0.75),
+      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.none, .0, .1, .1, alert_rate=0.75),
   },
 
   EventName.preLaneChangeRight: {
@@ -531,7 +531,7 @@ EVENTS = {
       "Steer Right to Start Lane Change",
       "Monitor Other Vehicles",
       AlertStatus.normal, AlertSize.mid,
-      Priority.LOW, VisualAlert.none, AudibleAlert.none, .0, .1, .1, alert_rate=0.75),
+      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.none, .0, .1, .1, alert_rate=0.75),
   },
 
   EventName.laneChangeBlocked: {
@@ -539,7 +539,7 @@ EVENTS = {
       "Car Detected in Blindspot",
       "Monitor Other Vehicles",
       AlertStatus.normal, AlertSize.mid,
-      Priority.LOW, VisualAlert.none, AudibleAlert.none, .0, .1, .1),
+      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.none, .0, .1, .1),
   },
 
   EventName.laneChange: {
@@ -547,7 +547,7 @@ EVENTS = {
       "Changing Lane",
       "Monitor Other Vehicles",
       AlertStatus.normal, AlertSize.mid,
-      Priority.LOW, VisualAlert.none, AudibleAlert.none, .0, .1, .1),
+      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.none, .0, .1, .1),
   },
 
   EventName.steerSaturated: {
@@ -555,7 +555,7 @@ EVENTS = {
       "TAKE CONTROL",
       "Turn Exceeds Steering Limit",
       AlertStatus.userPrompt, AlertSize.mid,
-      Priority.LOW, VisualAlert.none, AudibleAlert.chimePrompt, 1., 2., 3.),
+      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.chimePrompt, 1., 2., 3.),
   },
 
   # ********** events that affect controls state transitions **********
@@ -582,7 +582,7 @@ EVENTS = {
   },
 
   EventName.parkBrake: {
-    ET.WARNING: EngagementAlert(AudibleAlert.chimeDisengage),
+    ET.USER_DISABLE: EngagementAlert(AudibleAlert.chimeDisengage),
     ET.NO_ENTRY: NoEntryAlert("Park Brake Engaged"),
   },
 
@@ -607,7 +607,7 @@ EVENTS = {
       "TAKE CONTROL",
       "Steering Temporarily Unavailable",
       AlertStatus.userPrompt, AlertSize.mid,
-      Priority.LOW, VisualAlert.none, AudibleAlert.chimeWarning1, .4, 2., 3.),
+      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.chimeWarning1, .4, 2., 3.),
     ET.NO_ENTRY: NoEntryAlert("Steering Temporarily Unavailable",
                               duration_hud_alert=0.),
   },
@@ -688,8 +688,8 @@ EVENTS = {
   },
 
   EventName.wrongGear: {
-    ET.USER_DISABLE: EngagementAlert(AudibleAlert.chimeDisengage),
-    ET.NO_ENTRY: NoEntryAlert("Shift Gear to Drive"),
+    ET.SOFT_DISABLE: SoftDisableAlert("Gear not D"),
+    ET.NO_ENTRY: NoEntryAlert("Gear not D"),
   },
 
   EventName.calibrationInvalid: {
@@ -704,7 +704,7 @@ EVENTS = {
   },
 
   EventName.doorOpen: {
-    ET.USER_DISABLE: EngagementAlert(AudibleAlert.chimeDisengage),
+    ET.SOFT_DISABLE: SoftDisableAlert("Door Open"),
     ET.NO_ENTRY: NoEntryAlert("Door open"),
   },
 
@@ -810,8 +810,8 @@ EVENTS = {
   },
 
   EventName.reverseGear: {
-    ET.USER_DISABLE: EngagementAlert(AudibleAlert.chimeDisengage),
-    ET.NO_ENTRY: NoEntryAlert("Shift Gear to Drive"),
+    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("Reverse Gear"),
+    ET.NO_ENTRY: NoEntryAlert("Reverse Gear"),
   },
 
   EventName.cruiseDisabled: {
