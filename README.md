@@ -13,10 +13,14 @@ https://d.sdut.me/arne/release4
 or if you want to use the command line or https://github.com/jfrux/workbench
 `cd /data; rm -rf openpilot; git clone --depth 1 https://github.com/arne182/openpilot -b release4; reboot`
 
-still have trouble ?? More info about how to install this fork can be found [here](https://medium.com/@jfrux/comma-eon-installing-a-fork-of-openpilot-5c2b5c134b4b).
+#### Troubleshooting
+Arnepilot has comma logger disabled. This gives a 35% more cpu but at cost of giving [connection error](https://cdn.discordapp.com/attachments/538741329799413760/743231854764884067/image0.jpg)
+
+If you get the [no vehicle](https://cdn.discordapp.com/attachments/538741329799413760/743231854764884067/image0.jpg) after installing Arnepilot please reboot your device. If this still doesn't fix the problem look below at panda flashing and run the command. This is a known issue with comma2 users.
+
 ## Panda flashing
 
-This is done automatically otherwise run (pkill -f boardd; cd /data/openpilot/panda/board; make; reboot) to change the following:
+This is done automatically otherwise run `pkill -f boardd; cd /data/openpilot/panda/board; make; reboot` to change the following:
 - allowing no disengage on brake and gas for Toyota
 - changing acceleration limits for Toyota and
 - adapting lane departure warning where it gives you a slight push back into the middle of the lane without needing to be engaged (not yet complete)
