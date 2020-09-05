@@ -9,6 +9,7 @@ from common.op_params import opParams
 
 op_params = opParams()
 spairrowtuning = op_params.get('spairrowtuning')
+corolla_tss2_D_tuning = op_params.get('corolla_tss2_D_tuning')
 
 GearShifter = car.CarState.GearShifter
 
