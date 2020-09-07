@@ -48,6 +48,7 @@ class CarInterface(CarInterfaceBase):
     if candidate not in [CAR.PRIUS_2019, CAR.PRIUS, CAR.RAV4, CAR.RAV4H, CAR.COROLLA]: # These cars use LQR/INDI
       ret.lateralTuning.init('pid')
       ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP, ret.lateralTuning.pid.kfBP = [[0.], [0.], [0.]]
+      ret.lateralTuning.pid.kdBP, ret.lateralTuning.pid.kdV = [[0.], [0.]]
 
     if candidate in [CAR.PRIUS, CAR.PRIUS_2019]:
       stop_and_go = True
