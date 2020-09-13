@@ -14,6 +14,7 @@ class CarController():
     self.alert_active = False
     self.gone_fast_yet = False
     self.steer_rate_limited = False
+
     self.packer = CANPacker(dbc_name)
 
   def update(self, enabled, CS, actuators, pcm_cancel_cmd, hud_alert):
@@ -24,7 +25,7 @@ class CarController():
 
     # *** compute control surfaces ***
     # steer torque
-    new_steer = actuators.steer * 2048.0  # SteerLimitParams.STEER_MAX
+    new_steer = actuators.steer * 2048.0;  # SteerLimitParams.STEER_MAX
     # apply_steer = apply_toyota_steer_torque_limits(new_steer, self.apply_steer_last,
     #                                                CS.out.steeringTorqueEps, SteerLimitParams)
     apply_steer = new_steer;
