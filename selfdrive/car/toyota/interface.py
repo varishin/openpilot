@@ -358,19 +358,12 @@ class CarInterface(CarInterfaceBase):
       tire_stiffness_factor = 0.6371   # hand-tune
       ret.mass = 3045. * CV.LB_TO_KG + STD_CARGO_KG
 
-      if spairrowtuning:
-        ret.steerActuatorDelay = 0.60
-        ret.steerRatio = 15.74
-        ret.steerLimitTimer = 5.0
-        tire_stiffness_factor = 0.6371  # not optimized yet
-        #ret.lateralTuning.pid.kpBP, ret.lateralTuning.pid.kpV = [[0.0, 15.5, 21.0, 29.0], [0.13, 0.39, 0.39, 0.6]]
-        #ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kiV = [[0.0, 15.5, 21.0, 29.0], [0.005, 0.015, 0.015, 0.1]]
-        #ret.lateralTuning.pid.kfBP, ret.lateralTuning.pid.kfV = [[0.0, 15.5, 21.0, 29.0], [0.00009, 0.00015, 0.00015, 0.00007818594]]
-        ret.lateralTuning.init('indi')
-        ret.lateralTuning.indi.innerLoopGain = 6
-        ret.lateralTuning.indi.outerLoopGain = 15.0
-        ret.lateralTuning.indi.timeConstant = 5.5
-        ret.lateralTuning.indi.actuatorEffectiveness = 6.0
+      ret.lateralTuning.init('indi')
+      ret.lateralTuning.indi.innerLoopGain = 4.0
+      ret.lateralTuning.indi.outerLoopGain = 3.0
+      ret.lateralTuning.indi.timeConstant = 1.0
+      ret.lateralTuning.indi.actuatorEffectiveness = 1.0
+      ret.steerActuatorDelay = 0.5
 
     ret.steerRateCost = 1.
     ret.centerToFront = ret.wheelbase * 0.44
