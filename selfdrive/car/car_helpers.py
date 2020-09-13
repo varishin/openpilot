@@ -176,7 +176,7 @@ def fingerprint(logcan, sendcan, has_relay):
             car_fingerprint = "TOYOTA COROLLA TSS2 2019"
           if any(("TOYOTA COROLLA HYBRID TSS2 2019" in c) for c in candidate_cars[b]):
             car_fingerprint = "TOYOTA COROLLA HYBRID TSS2 2019"
-          if any(("TOYOTA COROLLA HYBRID TSS2 2019" in c) for c in candidate_cars[b]):
+          if any(("TOYOTA PRIUS 2017" in c) for c in candidate_cars[b]):
             car_fingerprint = "TOYOTA PRIUS 2017"
          
 
