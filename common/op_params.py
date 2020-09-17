@@ -98,7 +98,8 @@ class opParams:
                         'corolla_tss2_d_tuning': Param(False, bool, 'lateral tuning using PID w/ true derivative'),
                         'lat_d': Param(9.0, VT.number, 'The lateral derivative gain, default is 9.0 for TSS2 Corolla. This is active at all speeds', live=True),
                         'ludicrous_mode': Param(False, bool, 'Double overall acceleration!'),
-                        'NoctuaMode': Param(False, bool, 'Noctua Fan are super quite and they run at full speed at all time.')}
+                        'NoctuaMode': Param(False, bool, 'Noctua Fan are super quite and they run at full speed at all time.'),
+                         'prius_pid': Param(False, bool, 'This enables the PID lateral controller with new a experimental derivative tune\nFalse: stock INDI, True: TSS2-tuned PID')}
 
     self._params_file = '/data/op_params.json'
     self._backup_file = '/data/op_params_corrupt.json'
