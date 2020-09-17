@@ -46,7 +46,7 @@ class CarInterface(CarInterfaceBase):
       ret.longitudinalTuning.kpV = [0.4, 0.36, 0.325]  # braking tune from rav4h
       ret.longitudinalTuning.kiV = [0.195, 0.10]
 
-    if candidate not in [CAR.PRIUS_2019, CAR.PRIUS, CAR.RAV4, CAR.RAV4H, CAR.COROLLA]: # These cars use LQR/INDI
+    if candidate not in [CAR.PRIUS_2019, CAR.PRIUS, CAR.RAV4, CAR.RAV4H, CAR.COROLLA] and not spairrowtuning: # These cars use LQR/INDI
       ret.lateralTuning.init('pid')
       ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP, ret.lateralTuning.pid.kfBP = [[0.], [0.], [0.]]
       ret.lateralTuning.pid.kdBP, ret.lateralTuning.pid.kdV = [[0.], [0.]]
@@ -256,9 +256,7 @@ class CarInterface(CarInterfaceBase):
       ret.wheelbase = 2.63906
       ret.steerRatio = 13.9
       tire_stiffness_factor = 0.444  # not optimized yet
-      ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.5], [0.1]]
       ret.mass = 3060. * CV.LB_TO_KG + STD_CARGO_KG
-      ret.lateralTuning.pid.kfV = [0.00007818594]
       if spairrowtuning:
         ret.steerActuatorDelay = 0.60
         ret.steerRatio = 15.33
@@ -272,13 +270,14 @@ class CarInterface(CarInterfaceBase):
         ret.lateralTuning.indi.outerLoopGain = 15.0
         ret.lateralTuning.indi.timeConstant = 5.5
         ret.lateralTuning.indi.actuatorEffectiveness = 6.0
-
-      if corolla_tss2_d_tuning:
-        ret.steerActuatorDelay = 0.40
-        ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.6], [0.1]]
-        ret.lateralTuning.pid.kdBP = [0.]
-        ret.lateralTuning.pid.kdV = [9.0]
-        ret.lateralTuning.pid.kf = 0.00007818594
+      else:
+        ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.5], [0.1]]
+        ret.lateralTuning.pid.kfV = [0.00007818594]
+        if corolla_tss2_d_tuning:
+          ret.steerActuatorDelay = 0.40
+          ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.6], [0.1]]
+          ret.lateralTuning.pid.kdV = [9.0]
+          ret.lateralTuning.pid.kfV = [0.00007818594]
         
     elif candidate == CAR.COROLLAH_TSS2:
       ret.longitudinalTuning.kpV = [0.2, 0.36, 0.325]  # braking tune from rav4h
