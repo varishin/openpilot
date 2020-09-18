@@ -483,7 +483,7 @@ static void ui_draw_vision_maxspeed(UIState *s) {
                is_set_over_limit ? nvgRGBA(218, 111, 37, 180) : COLOR_BLACK_ALPHA(100), 30);
 
   // Draw Border
-  NVGcolor color = COLOR_WHITE_ALPHA(100);
+  NVGcolor color = COLOR_WHITE_ALPHA(255);
   if (is_set_over_limit) {
     color = COLOR_OCHRE;
   } else if (is_speedlim_valid) {
