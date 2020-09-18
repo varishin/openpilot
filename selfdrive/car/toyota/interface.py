@@ -280,8 +280,8 @@ class CarInterface(CarInterfaceBase):
           ret.lateralTuning.pid.kfV = [0.00007818594]
         
     elif candidate == CAR.COROLLAH_TSS2:
-      ret.longitudinalTuning.kpV = [0.2, 0.36, 0.325]  # braking tune from rav4h
-      ret.longitudinalTuning.kiV = [0.05, 0.10]
+      ret.longitudinalTuning.kpV = [0.3, 0.36, 0.325]  # braking tune from rav4h
+      ret.longitudinalTuning.kiV = [0.075, 0.10]
       stop_and_go = True
       ret.safetyParam = 73
       ret.wheelbase = 2.63906
