@@ -35,7 +35,7 @@ class CarInterface(CarInterfaceBase):
     ret.steerLimitTimer = 0.4
 
     if ret.enableGasInterceptor:
-      ret.gasMaxBP = [0., 9., 55]
+      ret.gasMaxBP = [0., 35., 55]
       ret.gasMaxV = [0.2, 0.5, 0.7]
       # ret.longitudinalTuning.kpV = [0.5, 0.4, 0.3]  # braking tune, todo: test me vs. stock below
       # ret.longitudinalTuning.kiV = [0.135, 0.1]
