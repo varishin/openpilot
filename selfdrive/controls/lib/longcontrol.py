@@ -89,7 +89,7 @@ class LongControl():
       elif gas_button_status == 1:
         y = [0.2, 0.45, 0.7]
       elif gas_button_status == 2:
-        y = [0.2, 0.35, 0.66]
+        y = [0.2, 0.3, 0.5]
     else:
       if gas_button_status == 0:
         dynamic = True
