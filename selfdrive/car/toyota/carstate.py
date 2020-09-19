@@ -111,7 +111,7 @@ class CarState(CarStateBase):
       self.econ_on = cp.vl["GEAR_PACKET2"]['ECON_ON']
     try:
       if self.CP.carFingerprint == CAR.RAV4_TSS2:
-        self.sport_on = cp.vl["(("GEAR_PACKET"]['SPORT_ON_2']
+        self.sport_on = cp.vl["GEAR_PACKET"]['SPORT_ON_2']
       else:
         self.sport_on = cp.vl["GEAR_PACKET"]['SPORT_ON']
     except:
