@@ -10,6 +10,7 @@ from common.op_params import opParams
 op_params = opParams()
 spairrowtuning = op_params.get('spairrowtuning')
 corolla_tss2_d_tuning = op_params.get('corolla_tss2_d_tuning')
+prius_pid = op_params.get('prius_pid')
 
 GearShifter = car.CarState.GearShifter
 
@@ -278,7 +279,7 @@ class CarInterface(CarInterfaceBase):
           ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.6], [0.1]]
           ret.lateralTuning.pid.kdV = [9.0]
           ret.lateralTuning.pid.kfV = [0.00007818594]
-        
+
     elif candidate == CAR.COROLLAH_TSS2:
       ret.longitudinalTuning.kpV = [0.25, 0.3, 0.325]  # braking tune from rav4h
       ret.longitudinalTuning.kiV = [0.068, 0.10]
@@ -308,7 +309,7 @@ class CarInterface(CarInterfaceBase):
           ret.steerActuatorDelay = 0.40
           ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.6], [0.1]]
           ret.lateralTuning.pid.kdV = [9.0]
-        
+
     elif candidate in [CAR.LEXUS_ES_TSS2, CAR.LEXUS_ESH_TSS2]:
       stop_and_go = True
       ret.safetyParam = 73
@@ -385,14 +386,27 @@ class CarInterface(CarInterfaceBase):
       ret.wheelbase = 2.70
       ret.steerRatio = 15.74   # unknown end-to-end spec
       tire_stiffness_factor = 0.6371   # hand-tune
-      ret.mass = 3045. * CV.LB_TO_KG + STD_CARGO_KG
-
-      ret.lateralTuning.init('indi')
-      ret.lateralTuning.indi.innerLoopGain = 6
-      ret.lateralTuning.indi.outerLoopGain = 15.0
-      ret.lateralTuning.indi.timeConstant = 5.5
-      ret.lateralTuning.indi.actuatorEffectiveness = 6.0
-      ret.steerActuatorDelay = 0.60
+      ret.mass = 3115. * CV.LB_TO_KG + STD_CARGO_KG
+      #ret.lateralTuning.init('indi')
+      #ret.lateralTuning.indi.innerLoopGain = 6
+      #ret.lateralTuning.indi.outerLoopGain = 15.0
+      #ret.lateralTuning.indi.timeConstant = 5.5
+      #ret.lateralTuning.indi.actuatorEffectiveness = 6.0
+      ret.steerActuatorDelay = 0.4
+      ret.lateralTuning.pid.kfV = [0.00007818594]
+      if prius_pid:
+        ret.lateralTuning.init('pid')
+        ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.4], [0.1]]
+        ret.lateralTuning.pid.kdBP = [0.]
+        ret.lateralTuning.pid.kdV = [2.]
+        ret.lateralTuning.pid.kf = 0.00007818594
+      else:
+        ret.lateralTuning.init('indi')
+        ret.lateralTuning.indi.innerLoopGain = 6
+        ret.lateralTuning.indi.outerLoopGain = 15.0
+        ret.lateralTuning.indi.timeConstant = 5.5
+        ret.lateralTuning.indi.actuatorEffectiveness = 6.0
+        ret.steerActuatorDelay = 0.4
 
     ret.steerRateCost = 1.
     ret.centerToFront = ret.wheelbase * 0.44
