@@ -109,9 +109,11 @@ class CarState(CarStateBase):
       self.econ_on = 0
     if self.CP.carFingerprint in [CAR.COROLLAH_TSS2, CAR.LEXUS_ESH_TSS2, CAR.RAV4H_TSS2, CAR.LEXUS_UXH_TSS2, CAR.CHRH]:
       self.econ_on = cp.vl["GEAR_PACKET2"]['ECON_ON']
-
     try:
-      self.sport_on = cp.vl["GEAR_PACKET"]['SPORT_ON']
+      if self.CP.carFingerprint == CAR.RAV4_TSS2:
+        self.sport_on = cp.vl["GEAR_PACKET"]['SPORT_ON_2']
+      else:
+        self.sport_on = cp.vl["GEAR_PACKET"]['SPORT_ON']
     except:
       self.sport_on = 0
     if self.CP.carFingerprint in [CAR.COROLLAH_TSS2, CAR.LEXUS_ESH_TSS2, CAR.RAV4H_TSS2, CAR.LEXUS_UXH_TSS2, CAR.CHRH]:
@@ -468,7 +470,8 @@ class CarState(CarStateBase):
       ("STEER_TORQUE_SENSOR", 50),
       ("EPS_STATUS", 25),
     ]
-
+    if CP.carFingerprint == CAR.RAV4_TSS2:
+      signals.append(("SPORT_ON_2", "GEAR_PACKET", 0))
     if CP.carFingerprint == CAR.LEXUS_IS:
       signals.append(("MAIN_ON", "DSU_CRUISE", 0))
       signals.append(("SET_SPEED", "DSU_CRUISE", 0))
