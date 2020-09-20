@@ -387,7 +387,7 @@ class CarInterface(CarInterfaceBase):
       ret.steerRatio = 15.74   # unknown end-to-end spec
       tire_stiffness_factor = 0.6371   # hand-tune
       ret.mass = 3115. * CV.LB_TO_KG + STD_CARGO_KG
-      ret.steerActuatorDelay = 0.4
+      ret.steerActuatorDelay = 0.55
       if prius_pid:
         ret.lateralTuning.init('pid')
         ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.4], [0.1]]
@@ -400,7 +400,7 @@ class CarInterface(CarInterfaceBase):
         ret.lateralTuning.indi.outerLoopGain = 15.0
         ret.lateralTuning.indi.timeConstant = 5.5
         ret.lateralTuning.indi.actuatorEffectiveness = 6.0
-        ret.steerActuatorDelay = 0.4
+        ret.steerActuatorDelay = 0.55
 
     ret.steerRateCost = 1.
     ret.centerToFront = ret.wheelbase * 0.44
