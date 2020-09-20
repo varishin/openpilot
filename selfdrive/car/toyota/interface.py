@@ -309,7 +309,7 @@ class CarInterface(CarInterfaceBase):
           ret.steerActuatorDelay = 0.40
           ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.6], [0.1]]
           ret.lateralTuning.pid.kdV = [9.0]
-        
+
     elif candidate in [CAR.LEXUS_ES_TSS2, CAR.LEXUS_ESH_TSS2]:
       stop_and_go = True
       ret.safetyParam = 73
@@ -395,6 +395,7 @@ class CarInterface(CarInterfaceBase):
       ret.steerActuatorDelay = 0.4
       ret.lateralTuning.pid.kfV = [0.00007818594]
       if prius_pid:
+        ret.lateralTuning.init('pid')
         ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.4], [0.1]]
         ret.lateralTuning.pid.kdBP = [0.]
         ret.lateralTuning.pid.kdV = [2.]
