@@ -54,6 +54,7 @@ class CarState(CarStateBase):
     self.smartspeed = 0
     self.rsa_ignored_speed = 0
     self.spdval1 = 0
+    self.distance = 0
     if not travis:
       self.arne_pm = messaging_arne.PubMaster(['liveTrafficData', 'arne182Status'])
       self.arne_sm = messaging_arne.SubMaster(['latControl'])
@@ -293,12 +294,14 @@ class CarState(CarStateBase):
     #self.barriers = cp_cam.vl["LKAS_HUD"]['BARRIERS']
     #self.rightline = cp_cam.vl["LKAS_HUD"]['RIGHT_LINE']
     #self.leftline = cp_cam.vl["LKAS_HUD"]['LEFT_LINE']
-
+    
+    self.distance = cp_cam.vl["ACC_CONTROL"]['DISTANCE']
+    
     self.tsgn1 = cp_cam.vl["RSA1"]['TSGN1']
     if self.spdval1 != cp_cam.vl["RSA1"]['SPDVAL1']:
       self.rsa_ignored_speed = 0
     self.spdval1 = cp_cam.vl["RSA1"]['SPDVAL1']
-
+    
     self.splsgn1 = cp_cam.vl["RSA1"]['SPLSGN1']
     self.tsgn2 = cp_cam.vl["RSA1"]['TSGN2']
     #self.spdval2 = cp_cam.vl["RSA1"]['SPDVAL2']
@@ -492,9 +495,6 @@ class CarState(CarStateBase):
       signals.append(("INTERCEPTOR_GAS", "GAS_SENSOR", 0))
       signals.append(("INTERCEPTOR_GAS2", "GAS_SENSOR", 0))
       checks.append(("GAS_SENSOR", 50))
-    if CP.carFingerprint in TSS2_CAR:
-      signals += [("L_ADJACENT", "BSM", 0)]
-      signals += [("R_ADJACENT", "BSM", 0)]
 
     if CP.carFingerprint in TSS2_CAR:
       signals += [("L_ADJACENT", "BSM", 0)]
@@ -519,6 +519,7 @@ class CarState(CarStateBase):
                ("SPLSGN3", "RSA2", 0),
                ("TSGN4", "RSA2", 0),
                ("SPLSGN4", "RSA2", 0),
+               ("DISTANCE", "ACC_CONTROL", 0),
                #("BARRIERS", "LKAS_HUD", 0),
                #("RIGHT_LINE", "LKAS_HUD", 0),
                #("LEFT_LINE", "LKAS_HUD", 0),
