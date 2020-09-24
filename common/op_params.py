@@ -86,7 +86,7 @@ class opParams:
                         'NoctuaMode': Param(False, bool, 'Noctua Fan are super quite and they run at full speed at all time.'),
                         'offset_limit': Param(0, VT.number, 'Speed at which apk percent offset will work in m/s'),
                         'osm': Param(True, bool, 'Whether to use OSM for drives'),
-                        'prius_pid': Param(False, bool, 'This enables the PID lateral controller with new a experimental derivative tune\nFalse: stock INDI, True: TSS2-tuned PID')
+                        'prius_pid': Param(False, bool, 'This enables the PID lateral controller with new a experimental derivative tune\nFalse: stock INDI, True: TSS2-tuned PID'),
                         'rolling_stop': Param(False, bool, 'If you do not want stop signs to go down to 0 kph enable this for 9kph slow down'),
                         'rsa_max_speed': Param(24.5, VT.number, 'Speed limit to ignore RSA in m/s'),
                         'smart_speed': Param(True, bool, 'Whether to use Smart Speed for drives above smart_speed_max_vego'),
@@ -100,8 +100,8 @@ class opParams:
                         'min_TR': Param(None, VT.none_or_number, 'The minimum allowed following distance in seconds. Default is 0.9 seconds.\n'
                                                                  'The range is limited from 0.85 to 1.3. Set to None to disable', live=True),
                         'use_virtual_middle_line': Param(False, bool, 'For roads over 4m wide, hug right. For roads under 2m wide, hug left.'),
-                        'uniqueID': Param(None, [type(None), str], 'User\'s unique ID'),
-                        }
+                        'uniqueID': Param(None, [type(None), str], 'User\'s unique ID')
+                       }
 
     self._params_file = '/data/op_params.json'
     self._backup_file = '/data/op_params_corrupt.json'
