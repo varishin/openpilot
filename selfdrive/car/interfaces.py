@@ -182,6 +182,7 @@ class CarStateBase:
     self.CP = CP
     self.car_fingerprint = CP.carFingerprint
     self.cruise_buttons = 0
+    self.distance = 0
     self.out = car.CarState.new_message()
 
     # Q = np.matrix([[10.0, 0.0], [0.0, 100.0]])
