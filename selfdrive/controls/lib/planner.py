@@ -199,7 +199,7 @@ class Planner():
       self.last_time = self.last_time + 1
 
     gas_button_status = arne_sm['arne182Status'].gasbuttonstatus
-    if eco_mode and gas_button_status == 0 then:
+    if eco_mode and gas_button_status == 0:
       gas_button_status = 2
     v_ego = sm['carState'].vEgo
     blinkers = sm['carState'].leftBlinker or sm['carState'].rightBlinker
