@@ -384,7 +384,7 @@ class CarInterface(CarInterfaceBase):
 
     elif candidate == CAR.PRIUS_TSS2:
       stop_and_go = True
-      ret.safetyParam = 73
+      ret.safetyParam = 50
       ret.wheelbase = 2.70
       ret.steerRatio = 15.5   # guess work
       tire_stiffness_factor = 0.6371   # hand-tune
