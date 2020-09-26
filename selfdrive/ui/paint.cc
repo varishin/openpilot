@@ -23,8 +23,8 @@ const mat3 intrinsic_matrix = (mat3){{
 const uint8_t alert_colors[][4] = {
   [STATUS_STOPPED] = {0x0, 0x0, 0x0, 0xf1},
   [STATUS_DISENGAGED] = {0x0, 0x0, 0x0, 0xc8},
-  [STATUS_ENGAGED] = {0x0, 0x19, 0x0, 0x01},
-  [STATUS_WARNING] = {0x80, 0x80, 0x80, 0x01},
+  [STATUS_ENGAGED] = {0x0, 0x0, 0x19, 0x0f},
+  [STATUS_WARNING] = {0x80, 0x80, 0x80, 0x0f},
   [STATUS_ALERT] = {0xC9, 0x22, 0x31, 0xf1},
 };
 
@@ -746,7 +746,7 @@ static void ui_draw_df_button(UIState *s) {
   int y_padding = 50;
   int btn_x = 1920 - btn_w - x_padding - 175;
   int btn_y = 1080 - btn_h - y_padding;
-  int btn_colors[4][3] = {{0, 0, 0}, {178, 102, 255}, {255, 255, 255}, {202, 202, 202}}; //black, purple, white, gray
+  int btn_colors[4][3] = {{178, 102, 255}, {202, 202, 202} {255, 255, 255}, {0, 0, 0},}; //purple, gray, white, black,
 
   nvgBeginPath(s->vg);
   nvgRoundedRect(s->vg, btn_x-110, btn_y-45, btn_w, btn_h, 100);
@@ -774,7 +774,7 @@ static void ui_draw_ml_button(UIState *s) {
   nvgBeginPath(s->vg);
   nvgRoundedRect(s->vg, btn_x, btn_y, btn_w, btn_h, 25);
   if (s->scene.mlButtonEnabled) {  // change outline color based on status of button
-    nvgStrokeColor(s->vg, nvgRGBA(200, 200, 200, 255)); //gray on
+    nvgStrokeColor(s->vg, nvgRGBA(202, 202, 202, 255)); //gray on
   } else {
     nvgStrokeColor(s->vg, nvgRGBA(0, 0, 0, 255)); //black off
   }
