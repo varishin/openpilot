@@ -383,12 +383,12 @@ class CarInterface(CarInterfaceBase):
       ret.lateralTuning.pid.kfV = [0.00007]
 
     elif candidate == CAR.PRIUS_TSS2:
-      ret.longitudinalTuning.kpV = [0.25, 0.3, 0.325]  # braking tune from rav4h
-      ret.longitudinalTuning.kiV = [0.068, 0.10]
+      ret.longitudinalTuning.kpV = [0.4, 0.36, 0.325]  # braking tune from rav4h
+      ret.longitudinalTuning.kiV = [0.195, 0.10]
       stop_and_go = True
-      ret.safetyParam = 73
-      ret.wheelbase = 2.70
-      ret.steerRatio = 15.5   # guess work
+      ret.safetyParam = 50
+      ret.wheelbase = 2.70002
+      ret.steerRatio = 13.4   # True steerRation from older prius
       tire_stiffness_factor = 0.6371   # hand-tune
       ret.mass = 3115. * CV.LB_TO_KG + STD_CARGO_KG
       ret.steerActuatorDelay = 0.55
