@@ -397,7 +397,7 @@ static void ui_draw_vision_lanes(UIState *s) {
   ui_draw_lane(
       s, &scene->model.right_lane,
       pvd + MODEL_LANE_PATH_CNT,
-      model.right_lane.prob);
+      scene->model.right_lane.prob);
 
   if(s->sm->updated("radarState")) {
     update_all_track_data(s);
