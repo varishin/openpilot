@@ -369,7 +369,11 @@ static void update_all_lane_lines_data(UIState *s, const PathData &path, model_p
   update_lane_line_data(s, path.points, var, pstart + 2, path.validLen);
 }
 
-static void ui_draw_lane(UIState *s, const PathData *path, model_path_vertices_data *pstart, NVGcolor color) {
+static void ui_draw_lane(UIState *s, const PathData *path, model_path_vertices_data *pstart, float prob) {
+  float lane_pos = std::abs(path->poly[3]);  // get redder when line is closer to car
+  float hue = 332.5 * lane_pos - 332.5;  // equivalent to {1.4, 1.0}: {133, 0} (green to red)
+  hue = fmin(133, fmax(0, hue)) / 360.;  // clip and normalize
+  NVGcolor color = nvgHSLA(hue, 0.73, 0.64, prob * 255);
   ui_draw_lane_line(s, pstart, color);
   color.a /= 25;
   ui_draw_lane_line(s, pstart + 1, color);
@@ -387,13 +391,13 @@ static void ui_draw_vision_lanes(UIState *s) {
   ui_draw_lane(
       s, &scene->model.left_lane,
       pvd,
-      nvgRGBAf(1.0, 1.0, 1.0, scene->model.left_lane.prob));
+      scene->model.left_lane.prob);
 
   // Draw right lane edge
   ui_draw_lane(
       s, &scene->model.right_lane,
       pvd + MODEL_LANE_PATH_CNT,
-      nvgRGBAf(1.0, 1.0, 1.0, scene->model.right_lane.prob));
+      model.right_lane.prob);
 
   if(s->sm->updated("radarState")) {
     update_all_track_data(s);
