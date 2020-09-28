@@ -163,6 +163,7 @@ typedef struct UIScene {
 
   cereal::ThermalData::Reader thermal;
   cereal::RadarState::LeadData::Reader lead_data[2];
+  cereal::DMonitoringState::Reader dmonitoring_state;
   cereal::ControlsState::Reader controls_state;
   cereal::DriverState::Reader driver_state;
 

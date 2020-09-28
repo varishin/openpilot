@@ -659,6 +659,7 @@ static void ui_draw_vision_event(UIState *s) {
       // draw hands on wheel pictogram under wheel pictogram.
       auto handsOnWheelState = s->scene.dmonitoring_state.getHandsOnWheelState();
       if (handsOnWheelState >= cereal::DMonitoringState::HandsOnWheelState::WARNING) {
+        NVGcolor color;
         if (handsOnWheelState == cereal::DMonitoringState::HandsOnWheelState::WARNING) {
           color = COLOR_OCHRE;
         } else {
