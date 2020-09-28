@@ -386,7 +386,7 @@ class CarInterface(CarInterfaceBase):
       ret.longitudinalTuning.kpV = [3.6, 2.4, 1.5]
       ret.longitudinalTuning.kiV = [0.54, 0.36]
       stop_and_go = True
-      ret.safetyParam = 50
+      ret.safetyParam = 55
       ret.wheelbase = 2.70002
       ret.steerRatio = 13.4   # True steerRation from older prius
       tire_stiffness_factor = 0.6371   # hand-tune
