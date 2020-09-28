@@ -163,6 +163,7 @@ typedef struct UIScene {
 
   cereal::ThermalData::Reader thermal;
   cereal::RadarState::LeadData::Reader lead_data[2];
+  cereal::DMonitoringState::Reader dmonitoring_state;
   cereal::ControlsState::Reader controls_state;
   cereal::DriverState::Reader driver_state;
 
@@ -199,6 +200,7 @@ typedef struct UIState {
   int font_sans_semibold;
   int font_sans_bold;
   int img_wheel;
+  int img_hands_on_wheel;
   int img_turn;
   int img_face;
   int img_map;
