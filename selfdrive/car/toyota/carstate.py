@@ -387,9 +387,9 @@ class CarState(CarStateBase):
       ("STEER_ANGLE_SENSOR", 80),
       ("PCM_CRUISE", 33),
       ("STEER_TORQUE_SENSOR", 50),
-      ("EPS_STATUS", 25),
     ]
-
+    if CP.carFingerprint != CAR.AVALON_2021:
+      checks.append(("EPS_STATUS", 25))
     if CP.carFingerprint == CAR.LEXUS_IS:
       signals.append(("MAIN_ON", "DSU_CRUISE", 0))
       signals.append(("SET_SPEED", "DSU_CRUISE", 0))
@@ -470,8 +470,9 @@ class CarState(CarStateBase):
       ("STEER_ANGLE_SENSOR", 80),
       ("PCM_CRUISE", 33),
       ("STEER_TORQUE_SENSOR", 50),
-      ("EPS_STATUS", 25),
     ]
+    if CP.carFingerprint != CAR.AVALON_2021:
+      checks.append(("EPS_STATUS", 25))
     if CP.carFingerprint == CAR.RAV4_TSS2:
       signals.append(("SPORT_ON_2", "GEAR_PACKET", 0))
     if CP.carFingerprint == CAR.LEXUS_IS:
