@@ -217,7 +217,6 @@ class SubMaster():
     for s in service_list:
       if not self.valid[s]:
         print(str(s) + " is not valid!")
-    for s in service_list if s not in self.ignore_alive:
       if not self.alive[s]:
         print(str(s) +' is not alive!')
 
