@@ -137,10 +137,10 @@ class CarInterfaceBase():
       events.add(EventName.wrongCruiseMode)
 
     # TODO: move this stuff to the capnp strut
-    #if cs_out.steerError:
-    #  events.add(EventName.steerUnavailable)
-    #elif cs_out.steerWarning:
-    #  events.add(EventName.steerTempUnavailable)
+    if cs_out.steerError:
+      events.add(EventName.steerUnavailable)
+    elif cs_out.steerWarning:
+      events.add(EventName.steerTempUnavailable)
     # Disable on rising edge of gas or brake. Also disable on brake when speed > 0.
     # Optionally allow to press gas at zero speed to resume.
     # e.g. Chrysler does not spam the resume button yet, so resuming with gas is handy. FIXME!
