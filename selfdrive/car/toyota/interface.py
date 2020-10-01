@@ -247,7 +247,7 @@ class CarInterface(CarInterfaceBase):
       ret.lateralTuning.pid.kfV = [0.00004]
       for fw in car_fw:
         if fw.ecu == "eps" and fw.fwVersion == b"8965B42170\x00\x00\x00\x00\x00\x00":
-          ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.6], [0.1]]
+          ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.3, 0.6], [0.05, 0.1]]
           ret.lateralTuning.pid.kfV = [0.00007818594]
           break
 
