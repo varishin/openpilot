@@ -157,7 +157,7 @@ class CarState(CarStateBase):
         self.rightblindspot = False
         self.rightblindspotD1 = 0
         self.rightblindspotD2 = 0
-    elif frame > 999 and self.CP.carFingerprint in TSS2_CAR:
+    elif frame > 999 and self.CP.carFingerprint in TSS2_CAR or CP.carFingerprint == CAR.AVALON_2021:
       self.leftblindspot = cp.vl["BSM"]['L_ADJACENT'] == 1
       self.leftblindspotD1 = 10.1
       self.leftblindspotD2 = 10.1
@@ -414,7 +414,7 @@ class CarState(CarStateBase):
       signals.append(("INTERCEPTOR_GAS2", "GAS_SENSOR", 0))
       checks.append(("GAS_SENSOR", 50))
 
-    if CP.carFingerprint in TSS2_CAR:
+    if CP.carFingerprint in TSS2_CAR or CP.carFingerprint == CAR.AVALON_2021:
       signals += [("L_ADJACENT", "BSM", 0)]
       signals += [("R_ADJACENT", "BSM", 0)]
 
@@ -497,7 +497,7 @@ class CarState(CarStateBase):
       signals.append(("INTERCEPTOR_GAS2", "GAS_SENSOR", 0))
       checks.append(("GAS_SENSOR", 50))
 
-    if CP.carFingerprint in TSS2_CAR:
+    if CP.carFingerprint in TSS2_CAR or CP.carFingerprint == CAR.AVALON_2021:
       signals += [("L_ADJACENT", "BSM", 0)]
       signals += [("L_APPROACHING", "BSM", 0)]
       signals += [("R_ADJACENT", "BSM", 0)]
