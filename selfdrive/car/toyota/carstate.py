@@ -157,7 +157,7 @@ class CarState(CarStateBase):
         self.rightblindspot = False
         self.rightblindspotD1 = 0
         self.rightblindspotD2 = 0
-    elif frame > 999 and self.CP.carFingerprint in TSS2_CAR or CP.carFingerprint == CAR.AVALON_2021:
+    elif frame > 999 and self.CP.carFingerprint in TSS2_CAR or self.CP.carFingerprint == CAR.AVALON_2021:
       self.leftblindspot = cp.vl["BSM"]['L_ADJACENT'] == 1
       self.leftblindspotD1 = 10.1
       self.leftblindspotD2 = 10.1
