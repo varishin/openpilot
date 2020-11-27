@@ -2,9 +2,12 @@ from common.numpy_fast import interp
 import numpy as np
 from selfdrive.kegman_conf import kegman_conf
 from cereal import log
+from selfdrive.ntune import ntune_get
 
 kegman = kegman_conf()
-CAMERA_OFFSET = float(kegman.conf['cameraOffset'])  # m from center car to camera
+# CAMERA_OFFSET = float(kegman.conf['cameraOffset'])  # m from center car to camera
+cameraOffset = ntune_get("cameraOffset")
+CAMERA_OFFSET = cameraOffset    #nTune값 반영
 
 #zorrobyte
 def mean(numbers): 
