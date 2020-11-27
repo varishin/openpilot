@@ -5,6 +5,7 @@ from selfdrive.swaglog import cloudlog
 from selfdrive.controls.lib.lateral_mpc import libmpc_py
 from selfdrive.controls.lib.drive_helpers import MPC_COST_LAT
 from selfdrive.controls.lib.lane_planner import LanePlanner
+from common.params import Params
 from selfdrive.kegman_conf import kegman_conf
 from common.numpy_fast import interp
 import cereal.messaging as messaging
@@ -44,6 +45,7 @@ DESIRES = {
 def calc_states_after_delay(states, v_ego, steer_angle, curvature_factor, steer_ratio, delay):
   states[0].x = v_ego * delay
   states[0].psi = v_ego * curvature_factor * math.radians(steer_angle) / steer_ratio * delay
+  states[0].y = states[0].x * math.sin(states[0].psi / 2)
   return states
 
 
@@ -56,6 +58,7 @@ class PathPlanner():
 
     self.setup_mpc()
     self.solution_invalid_cnt = 0
+    self.lane_change_enabled = Params().get('LaneChangeEnabled') == b'1'
     self.path_offset_i = 0.0
 
     self.mpc_frame = 0
@@ -85,6 +88,7 @@ class PathPlanner():
     self.alc_timer = float(kegman.conf['ALCtimer'])
 
     self.lane_change_state = LaneChangeState.off
+    self.lane_change_direction = LaneChangeDirection.none
     self.lane_change_timer = 0.0
     self.lane_change_ll_prob = 1.0
     self.prev_one_blinker = False
@@ -157,54 +161,49 @@ class PathPlanner():
     else:
       self.steerRatio = self.sR[0]
       
-    print("steerRatio = ", self.steerRatio)
+    #print("steerRatio = ", self.steerRatio)
 
     self.LP.parse_model(sm['model'])
 
     # Lane change logic
-    lane_change_direction = LaneChangeDirection.none
     one_blinker = sm['carState'].leftBlinker != sm['carState'].rightBlinker
+    below_lane_change_speed = v_ego < self.alc_min_speed
 
-    if not active or self.lane_change_timer > 10.0:
+    if sm['carState'].leftBlinker:
+      self.lane_change_direction = LaneChangeDirection.left
+    elif sm['carState'].rightBlinker:
+      self.lane_change_direction = LaneChangeDirection.right
+
+    if (not active) or (self.lane_change_timer > LANE_CHANGE_TIME_MAX) or (not self.lane_change_enabled):
       self.lane_change_state = LaneChangeState.off
-      self.pre_lane_change_timer = 0.0
+      self.lane_change_direction = LaneChangeDirection.none
     else:
-      if sm['carState'].leftBlinker:
-        lane_change_direction = LaneChangeDirection.left
-        self.pre_lane_change_timer += DT_MDL
-      elif sm['carState'].rightBlinker:
-        lane_change_direction = LaneChangeDirection.right
-        self.pre_lane_change_timer += DT_MDL
-      else:
-        self.pre_lane_change_timer = 0.0
-
-      if self.alc_nudge_less and self.pre_lane_change_timer > self.alc_timer:
-        torque_applied = True
-      else:
-        if lane_change_direction == LaneChangeDirection.left:
-          torque_applied = sm['carState'].steeringTorque > 0 and sm['carState'].steeringPressed
-        else:
-          torque_applied = sm['carState'].steeringTorque < 0 and sm['carState'].steeringPressed
-        
+      torque_applied = sm['carState'].steeringPressed and \
+                       ((sm['carState'].steeringTorque > 0 and self.lane_change_direction == LaneChangeDirection.left) or
+                        (sm['carState'].steeringTorque < 0 and self.lane_change_direction == LaneChangeDirection.right))
 
       blindspot_detected = ((sm['carState'].leftBlindspot and self.lane_change_direction == LaneChangeDirection.left) or
                             (sm['carState'].rightBlindspot and self.lane_change_direction == LaneChangeDirection.right))
 
       lane_change_prob = self.LP.l_lane_change_prob + self.LP.r_lane_change_prob
 
-      if self.lane_change_state == LaneChangeState.off and one_blinker and not self.prev_one_blinker:
+      # State transitions
+      # off
+
+      if self.lane_change_state == LaneChangeState.off and one_blinker and not self.prev_one_blinker and not below_lane_change_speed:
         self.lane_change_state = LaneChangeState.preLaneChange
         self.lane_change_ll_prob = 1.0
 
       # pre
-      elif self.lane_change_state == LaneChangeState.preLaneChange and not one_blinker:
-        self.lane_change_state = LaneChangeState.off
-      elif self.lane_change_state == LaneChangeState.preLaneChange and torque_applied:
-        self.lane_change_state = LaneChangeState.laneChangeStarting
+      elif self.lane_change_state == LaneChangeState.preLaneChange:
+        if not one_blinker or below_lane_change_speed:
+          self.lane_change_state = LaneChangeState.off
+        elif torque_applied and not blindspot_detected:
+          self.lane_change_state = LaneChangeState.laneChangeStarting
 
       # starting
       elif self.lane_change_state == LaneChangeState.laneChangeStarting:
-        # fade out lanelines over .5s
+        # fade out over .5s
         self.lane_change_ll_prob = max(self.lane_change_ll_prob - 2*DT_MDL, 0.0)
         # 98% certainty
         if lane_change_prob < 0.02 and self.lane_change_ll_prob < 0.01:
@@ -225,8 +224,8 @@ class PathPlanner():
       self.lane_change_timer += DT_MDL
 
     self.prev_one_blinker = one_blinker
-
-    desire = DESIRES[lane_change_direction][self.lane_change_state]
+    
+    desire = DESIRES[self.lane_change_direction][self.lane_change_state]
 
     # Turn off lanes during lane change
     if desire == log.PathPlan.Desire.laneChangeRight or desire == log.PathPlan.Desire.laneChangeLeft:
@@ -301,7 +300,7 @@ class PathPlanner():
 
     plan_send.pathPlan.desire = desire
     plan_send.pathPlan.laneChangeState = self.lane_change_state
-    plan_send.pathPlan.laneChangeDirection = lane_change_direction
+    plan_send.pathPlan.laneChangeDirection = self.lane_change_direction
 
     pm.send('pathPlan', plan_send)
 

@@ -16,39 +16,43 @@ from selfdrive.controls.lib.long_mpc import LongitudinalMpc
 from selfdrive.controls.lib.drive_helpers import V_CRUISE_MAX
 from selfdrive.kegman_conf import kegman_conf
 
-
-MAX_SPEED = 255.0
+kegman = kegman_conf()
 
 LON_MPC_STEP = 0.2  # first step is 0.2s
-MAX_SPEED_ERROR = 2.0
 AWARENESS_DECEL = -0.2     # car smoothly decel at .2m/s^2 when user is distracted
 
 # lookup tables VS speed to determine min and max accels in cruise
 # make sure these accelerations are smaller than mpc limits
-_A_CRUISE_MIN_V = [-1.0, -.8, -.67, -.5, -.30]
-_A_CRUISE_MIN_BP = [   0., 5.,  10., 20.,  40.]
+_A_CRUISE_MIN_V_ECO = [-1.0, -0.7, -0.6, -0.5, -0.3]
+_A_CRUISE_MIN_V_SPORT = [-3.0, -2.6, -2.3, -2.0, -1.0]
+_A_CRUISE_MIN_V_FOLLOWING = [-3.0, -2.5, -2.0, -1.5, -1.0]
+_A_CRUISE_MIN_V = [-2.0, -1.5, -1.0, -0.7, -0.5]
+_A_CRUISE_MIN_BP = [0.0, 5.0, 10.0, 20.0, 55.0]
 
 # need fast accel at very low speed for stop and go
 # make sure these accelerations are smaller than mpc limits
-_A_CRUISE_MAX_V = [1.2, 1.2, 0.65, .4]
-_A_CRUISE_MAX_V_FOLLOWING = [1.6, 1.6, 0.65, .4]
-_A_CRUISE_MAX_BP = [0.,  6.4, 22.5, 40.]
+_A_CRUISE_MAX_V = [2.0, 2.0, 1.5, .5, .3]
+_A_CRUISE_MAX_V_ECO = [0.8, 0.9, 1.0, 0.4, 0.2]
+_A_CRUISE_MAX_V_SPORT = [3.0, 3.5, 3.0, 2.0, 2.0]
+_A_CRUISE_MAX_V_FOLLOWING = [1.6, 1.4, 1.4, .7, .3]
+_A_CRUISE_MAX_BP = [0., 5., 10., 20., 55.]
 
 # Lookup table for turns
-_A_TOTAL_MAX_V = [1.7, 3.2]
-_A_TOTAL_MAX_BP = [20., 40.]
-
-# 75th percentile
-SPEED_PERCENTILE_IDX = 7
+_A_TOTAL_MAX_V = [3.5, 4.0, 5.0]
+_A_TOTAL_MAX_BP = [0., 25., 55.]
 
 
-def calc_cruise_accel_limits(v_ego, following):
+def calc_cruise_accel_limits(v_ego, following, accelMode):
   a_cruise_min = interp(v_ego, _A_CRUISE_MIN_BP, _A_CRUISE_MIN_V)
+
+  print("accelMode = ",accelMode) 
 
   if following:
     a_cruise_max = interp(v_ego, _A_CRUISE_MAX_BP, _A_CRUISE_MAX_V_FOLLOWING)
   else:
-    a_cruise_max = interp(v_ego, _A_CRUISE_MAX_BP, _A_CRUISE_MAX_V)
+    _A_CRUISE_MAX_V_MODE_LIST = [_A_CRUISE_MAX_V_ECO, _A_CRUISE_MAX_V, _A_CRUISE_MAX_V_SPORT]
+    _A_CRUISE_MAX_V_MODE_LIST_INDEX = min(max(int(accelMode), 0), (len(_A_CRUISE_MAX_V_MODE_LIST) - 1))
+    a_cruise_max = interp(v_ego, _A_CRUISE_MAX_BP, _A_CRUISE_MAX_V_MODE_LIST[_A_CRUISE_MAX_V_MODE_LIST_INDEX])
   return np.vstack([a_cruise_min, a_cruise_max])
 
 
@@ -138,27 +142,9 @@ class Planner():
       
     self.mpc_frame += 1
     
-    if len(sm['model'].path.poly) and int(self.kegman.conf['slowOnCurves']):
-      path = list(sm['model'].path.poly)
-
-      # Curvature of polynomial https://en.wikipedia.org/wiki/Curvature#Curvature_of_the_graph_of_a_function
-      # y = a x^3 + b x^2 + c x + d, y' = 3 a x^2 + 2 b x + c, y'' = 6 a x + 2 b
-      # k = y'' / (1 + y'^2)^1.5
-      # TODO: compute max speed without using a list of points and without numpy
-      y_p = 3 * path[0] * self.path_x**2 + 2 * path[1] * self.path_x + path[2]
-      y_pp = 6 * path[0] * self.path_x + 2 * path[1]
-      curv = y_pp / (1. + y_p**2)**1.5
-
-      a_y_max = 2.975 - v_ego * 0.0375  # ~1.85 @ 75mph, ~2.6 @ 25mph
-      v_curvature = np.sqrt(a_y_max / np.clip(np.abs(curv), 1e-4, None))
-      model_speed = np.min(v_curvature)
-      model_speed = max(20.0 * CV.MPH_TO_MS, model_speed) # Don't slow down below 20mph
-    else:
-      model_speed = MAX_SPEED
-
     # Calculate speed for normal cruise control
-    if enabled and not self.first_loop:
-      accel_limits = [float(x) for x in calc_cruise_accel_limits(v_ego, following)]
+    if enabled and not self.first_loop and not sm['carState'].gasPressed:
+      accel_limits = [float(x) for x in calc_cruise_accel_limits(v_ego, following, self.kegman.conf['accelerationMode'])]
       jerk_limits = [min(-0.1, accel_limits[0]), max(0.1, accel_limits[1])]  # TODO: make a separate lookup for jerk tuning
       accel_limits_turns = limit_accel_in_turns(v_ego, sm['carState'].steeringAngle, accel_limits, self.CP)
 
@@ -190,8 +176,8 @@ class Planner():
     self.mpc1.set_cur_state(self.v_acc_start, self.a_acc_start)
     self.mpc2.set_cur_state(self.v_acc_start, self.a_acc_start)
 
-    self.mpc1.update(pm, sm['carState'], lead_1, v_cruise_setpoint)
-    self.mpc2.update(pm, sm['carState'], lead_2, v_cruise_setpoint)
+    self.mpc1.update(pm, sm['carState'], lead_1)
+    self.mpc2.update(pm, sm['carState'], lead_2)
 
     self.choose_solution(v_cruise_setpoint, enabled)
 

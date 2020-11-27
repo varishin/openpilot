@@ -1,108 +1,75 @@
 #!/usr/bin/bash
 
-export OMP_NUM_THREADS=1
-export MKL_NUM_THREADS=1
-export NUMEXPR_NUM_THREADS=1
-export OPENBLAS_NUM_THREADS=1
-export VECLIB_MAXIMUM_THREADS=1
-
 if [ -z "$BASEDIR" ]; then
   BASEDIR="/data/openpilot"
 fi
 
-if [ -z "$PASSIVE" ]; then
-  export PASSIVE="1"
-fi
+file="/data/no_ota_updates"
 
-STAGING_ROOT="/data/safe_staging"
 
-function launch {
-  # Wifi scan
-  wpa_cli IFNAME=wlan0 SCAN
+source "$BASEDIR/launch_env.sh"
 
-  # apply update only if no_ota_updates does not exist in /data directory
-  file="/data/no_ota_updates"
-  if ! [ -f "$file" ]; then
-    # Check to see if there's a valid overlay-based update available. Conditions
-    # are as follows:
-    #
-    # 1. The BASEDIR init file has to exist, with a newer modtime than anything in
-    #    the BASEDIR Git repo. This checks for local development work or the user
-    #    switching branches/forks, which should not be overwritten.
-    # 2. The FINALIZED consistent file has to exist, indicating there's an update
-    #    that completed successfully and synced to disk.
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
-    if [ -f "${BASEDIR}/.overlay_init" ]; then
-      find ${BASEDIR}/.git -newer ${BASEDIR}/.overlay_init | grep -q '.' 2> /dev/null
-      if [ $? -eq 0 ]; then
-        echo "${BASEDIR} has been modified, skipping overlay update installation"
-      else
-        if [ -f "${STAGING_ROOT}/finalized/.overlay_consistent" ]; then
-          if [ ! -d /data/safe_staging/old_openpilot ]; then
-            echo "Valid overlay update found, installing"
-            LAUNCHER_LOCATION="${BASH_SOURCE[0]}"
+function tici_init {
+  sudo su -c 'echo "performance" > /sys/class/devfreq/soc:qcom,memlat-cpu0/governor'
+  sudo su -c 'echo "performance" > /sys/class/devfreq/soc:qcom,memlat-cpu4/governor'
+}
 
-            mv $BASEDIR /data/safe_staging/old_openpilot
-            mv "${STAGING_ROOT}/finalized" $BASEDIR
-            cd $BASEDIR
+function two_init {
+  # Restrict Android and other system processes to the first two cores
+  echo 0-1 > /dev/cpuset/background/cpus
+  echo 0-1 > /dev/cpuset/system-background/cpus
+  echo 0-1 > /dev/cpuset/foreground/cpus
+  echo 0-1 > /dev/cpuset/foreground/boost/cpus
+  echo 0-1 > /dev/cpuset/android/cpus
 
-            # Partial mitigation for symlink-related filesystem corruption
-            # Ensure all files match the repo versions after update
-            git reset --hard
-            git submodule foreach --recursive git reset --hard
-
-            echo "Restarting launch script ${LAUNCHER_LOCATION}"
-            exec "${LAUNCHER_LOCATION}"
-          else
-            echo "openpilot backup found, not updating"
-            # TODO: restore backup? This means the updater didn't start after swapping
-          fi
-        fi
-      fi
-    fi
-  fi
-
-  # Android and other system processes are not permitted to run on CPU 3
-  # NEOS installed app processes can run anywhere
-  echo 0-2 > /dev/cpuset/background/cpus
-  echo 0-2 > /dev/cpuset/system-background/cpus
-  [ -d "/dev/cpuset/foreground/boost/cpus" ] && echo 0-2 > /dev/cpuset/foreground/boost/cpus  # Not present in < NEOS 15
-  echo 0-2 > /dev/cpuset/foreground/cpus
-  echo 0-2 > /dev/cpuset/android/cpus
+  # openpilot gets all the cores
   echo 0-3 > /dev/cpuset/app/cpus
+
+  # set up governors
+  # +50mW offroad, +500mW onroad for 30% more RAM bandwidth
+  echo "performance" > /sys/class/devfreq/soc:qcom,cpubw/governor
+  echo 1056000 > /sys/class/devfreq/soc:qcom,m4m/max_freq
+  echo "performance" > /sys/class/devfreq/soc:qcom,m4m/governor
+
+  # unclear if these help, but they don't seem to hurt
+  echo "performance" > /sys/class/devfreq/soc:qcom,memlat-cpu0/governor
+  echo "performance" > /sys/class/devfreq/soc:qcom,memlat-cpu2/governor
+
+  # GPU
+  echo "performance" > /sys/class/devfreq/b00000.qcom,kgsl-3d0/governor
+
+  # /sys/class/devfreq/soc:qcom,mincpubw is the only one left at "powersave"
+  # it seems to gain nothing but a wasted 500mW
 
   # Collect RIL and other possibly long-running I/O interrupts onto CPU 1
   echo 1 > /proc/irq/78/smp_affinity_list # qcom,smd-modem (LTE radio)
   echo 1 > /proc/irq/33/smp_affinity_list # ufshcd (flash storage)
   echo 1 > /proc/irq/35/smp_affinity_list # wifi (wlan_pci)
+  echo 1 > /proc/irq/6/smp_affinity_list  # MDSS
+
   # USB traffic needs realtime handling on cpu 3
   [ -d "/proc/irq/733" ] && echo 3 > /proc/irq/733/smp_affinity_list # USB for LeEco
   [ -d "/proc/irq/736" ] && echo 3 > /proc/irq/736/smp_affinity_list # USB for OP3T
 
-  DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+  
+  if ! [ -f "$file" ]; then
+    # Check for NEOS update
+    if [ $(< /VERSION) != "$REQUIRED_NEOS_VERSION" ]; then
+      if [ -f "$DIR/scripts/continue.sh" ]; then
+        cp "$DIR/scripts/continue.sh" "/data/data/com.termux/files/continue.sh"
+      fi
 
-  # Remove old NEOS update file
-  # TODO: move this code to the updater
-  if [ -d /data/neoupdate ]; then
-    rm -rf /data/neoupdate
-  fi
-
-  # Check for NEOS update
-  if [ $(< /VERSION) != "14" ]; then
-    if [ -f "$DIR/scripts/continue.sh" ]; then
-      cp "$DIR/scripts/continue.sh" "/data/data/com.termux/files/continue.sh"
-    fi
-
-    if [ ! -f "$BASEDIR/prebuilt" ]; then
-      echo "Clearing build products and resetting scons state prior to NEOS update"
-      cd $BASEDIR && scons --clean
-      rm -rf /tmp/scons_cache
-      rm -r $BASEDIR/.sconsign.dblite
-    fi
-    "$DIR/installer/updater/updater" "file://$DIR/installer/updater/update.json"
-  else
-    if [[ $(uname -v) == "#1 SMP PREEMPT Wed Jun 10 12:40:53 PDT 2020" ]]; then
-      "$DIR/installer/updater/updater" "file://$DIR/installer/updater/update_kernel.json"
+      if [ ! -f "$BASEDIR/prebuilt" ]; then
+        # Clean old build products, but preserve the scons cache
+        cd $DIR
+        scons --clean
+        git clean -xdf
+        git submodule foreach --recursive git clean -xdf
+      fi
+  
+      "$DIR/installer/updater/updater" "file://$DIR/installer/updater/update.json"
     fi
   fi
 
@@ -110,7 +77,6 @@ function launch {
   # Remove and regenerate qcom sensor registry. Only done on OP3T mainboards.
   # Performed exactly once. The old registry is preserved just-in-case, and
   # doubles as a flag denoting we've already done the reset.
-  # TODO: we should really grow per-platform detect and setup routines
   if ! $(grep -q "letv" /proc/cmdline) && [ ! -f "/persist/comma/op3t-sns-reg-backup" ]; then
     echo "Performing OP3T sensor registry reset"
     mv /persist/sensors/sns.reg /persist/comma/op3t-sns-reg-backup &&
@@ -118,10 +84,47 @@ function launch {
       echo "restart" > /sys/kernel/debug/msm_subsys/slpi &&
       sleep 5  # Give Android sensor subsystem a moment to recover
   fi
+}
+
+function launch {
+  # Wifi scan
+  wpa_cli IFNAME=wlan0 SCAN
+
+  # Remove orphaned git lock if it exists on boot
+  [ -f "$DIR/.git/index.lock" ] && rm -f $DIR/.git/index.lock
+
+  # Check to see if there's a valid overlay-based update available. Conditions
+  # are as follows:
+  #
+  # 1. The BASEDIR init file has to exist, with a newer modtime than anything in
+  #    the BASEDIR Git repo. This checks for local development work or the user
+  #    switching branches/forks, which should not be overwritten.
+  # 2. The FINALIZED consistent file has to exist, indicating there's an update
+  #    that completed successfully and synced to disk.
+
+  if ! [ -f "$file" ]; then
+    if [ "$(git rev-parse HEAD)" != "$(git rev-parse @{u})" ]; then
+      git reset --hard @{u} &&
+      git clean -xdf &&
+      exec "${BASH_SOURCE[0]}"
+    fi
+  fi
+
+  # comma two init
+  if [ -f /EON ]; then
+    two_init
+  fi
+
+  if [ -f /TICI ]; then
+    tici_init
+  fi
 
   # handle pythonpath
   ln -sfn $(pwd) /data/pythonpath
   export PYTHONPATH="$PWD"
+
+  # write tmux scrollback to a file
+  tmux capture-pane -pq -S-1000 > /tmp/launch_log
 
   # start manager
   cd selfdrive

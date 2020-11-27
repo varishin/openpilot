@@ -1,10 +1,31 @@
-** Note that Honda stock AEB is disabled in 0.7.5 because of occassional issues on double lane curved highways where stock AEB activates when oncoming car detected - in 0.7.4 Honda stock AEB is enabled because unsafe mode in panda was not available yet in devel**
-
-
 This is a fork of comma's openpilot: https://github.com/commaai/openpilot, and contains tweaks for Hondas and GM vehicles.  It is open source and inherits MIT license.  By installing this software you accept all responsibility for anything that might occur while you use it.  All contributors to this fork are not liable.  <b>Use at your own risk.</b>
 
 
 If you wish you can buy me a beer or 3:  https://www.patreon.com/kegman
+
+Loading instructions:
+SSH into your Eon - google this if you don't know how
+
+Issue the following commands:
+
+->cd /data
+
+->mv ./openpilot ./openpilot_backup
+
+->git clone https://github.com/kegman/openpilot
+
+->cd openpilot
+
+->git checkout [insert branchname here]  (you can find branchnames on github page or issue "git branch" command)
+
+->reboot
+
+
+
+*** Note that driver monitoring wheelTouchSeconds is not working without the following MANUAL tweak:  You must uncomment the following line in selfdrive/monitoring/driver_monitor.py by removing the "#" at the beginning of the line.  This is due to Comma policy on not touching the wheelTouch timing for forks under threat of ban.  
+
+https://github.com/kegman/openpilot/blob/kegman-0.7.8/selfdrive/monitoring/driver_monitor.py#L21  
+
 
 
 ** <b>0.7.3 and below only:</b> If you get a red screen with "Communications Mismatch" please manually reflash panda.  Instructions are here:  https://community.comma.ai/wiki/index.php/Panda_Flashing - If you are using a GM model like the Volt and you get the communications mismatch, please try the -gm branch **
@@ -30,9 +51,16 @@ I will attempt to detail the changes in each of the branches here:
 * Thanks to @Clarity.bru and @wirelessnet2 for restoring the dashcam in 0.7.2
 
 
+
+Nuances in 0.7.7 and 0.7.8
+- steerRatio needs to be increased about 20-30% to maintain turning sharpness
+- GM Volt stop'n go working again
+- Nudgeless lane changes disabled
+
 Known bugs in 0.7.5:
 - GM stop and go may not work
 - Bosch lead distance resume spamming needs to be restored
+- Nudgeless lane changes disabled
 
 Known bugs in 0.7.4:
 - GM resume button may need to be pressed after coming to complete stop
@@ -51,6 +79,8 @@ Known bugs in 0.7:
 - ACC icon light on dash may turn yellow - does not affect OP engage-ability.
 
 List of changes and tweaks (latest changes at the top):
+- <b> New! accelerationMode config</b>: Added accelerationMode config option in kegman.json to change the acceleration mode between eco(`"accelerationMode": "0",`), regular(`"accelerationMode": "1",`), and sport(`"accelerationMode": "2",`) modes.
+
 - <b> New! EPS modified config</b>: Add epsModded value in kegman.json to change the flag for having a modded EPS.
 
 - <b> New! Timer for Nudgeless Auto Lane Change (default 2 seconds before lane change is made) </b>.  Thanks to @pjlao307 for getting this to work.  I have made the delay configurable in kegman.json
@@ -153,7 +183,7 @@ Everything inbetween -0.25 m/s and 3 m/s is interpolated, which adjusts the dist
 
 "lastTrMode": "2",      (last distance interval bars you used - (auto generated - do not touch this)
 
-"wheelTouchSeconds": "180"  (time interval between wheel touches when driver facial monitoring is not on - MAX LIMIT 600 seconds)
+"wheelTouchSeconds": "180"  (time interval between wheel touches when driver facial monitoring is not on - MAX LIMIT 600 seconds) - see Note at beginning of this README to see how to manually enable this in the code.
 
 
 ^^^ This file is auto generated here:  <b>/data/kegman.json</b> so it will remain even when you do a fresh clone.  If you mess something up, just delete the file and it will auto generate to default values.  Use vim or nano to edit this file to your heart's content.
@@ -216,3 +246,92 @@ Enjoy everyone.
 <b>NOTE:</b> If you have upgraded at any time to v0.5.10, v0.6.x and you want to go back to a branch with v0.5.9 or v0.5.8, then you have to SSH into the Eon and edit the file /data/params/d/ControlsParams and rename "angle_model_bias" to "angle_offset" or your car will have Dash Errors and you'll be scratching your head for hours! 
 
 <b>Pedal Users:</b> Also note that you need to flash your Pedal to go to v0.5.10.  If you want to go back to 0.5.9 or 0.5.8 you need to flash your pedal back to 0.5.9.  Instructions are here:  https://medium.com/@jfrux/comma-pedal-updating-the-firmware-over-can-fa438a3cf910.  Also. After you flash your Pedal..  All hell will break loose on your dash.  Traction control error, Power Steering Error, Trailer Error, OMFG the sky is falling error etc.  DON'T PANIC.  Just drive around a bit and it will disappear after about 2-3 restarts of the car.  Don't rush it I believe it's time dependent as well.  Just drive as normal.  They'll go away.
+
+
+
+kegman.json for Kegman's Honda Pilot 2018 EX-L:
+
+  {
+     "1barBP0": "-0.4",
+     
+     "1barBP1": "2.1",
+     
+     "1barHwy": "0.4",
+     
+     "1barMax": "2.2",
+     
+     "2barBP0": "-0.4",
+     
+     "2barBP1": "1.9",
+     
+     "2barHwy": "0.3",
+     
+     "2barMax": "2.2",
+     
+    "3barBP0": "0.0",
+    
+    "3barBP1": "3.0",
+    
+    "3barHwy": "0.1",
+    
+    "3barMax": "2.1",
+    
+    "ALCminSpeed": "16.66667",
+    
+    "ALCnudgeLess": "0",
+    
+    "ALCtimer": "2.0",
+    
+    "CruiseDelta": "5",
+    
+    "CruiseEnableMin": "40",
+    
+    "Kf": "0.00006",
+    
+    "Ki": "0.21",
+    
+    "Kp": "0.45",
+    
+    "accelerationMode": "2",
+    
+    "battChargeMax": "80",
+    
+    "battChargeMin": "70",
+    
+    "battPercOff": "25",
+    
+    "brakeStoppingTarget": "0.05",
+    
+    "cameraOffset": "0.075",
+    
+    "carVoltageMinEonShutdown": "11800",
+    
+    "deadzone": "0.0",
+    
+    "epsModded": "0",
+    
+    "lastTrMode": "1",
+    
+    "leadDistance": "5",
+    
+    "liveParams": "1",
+    
+    "sR_BP0": "2.5",
+    
+    "sR_BP1": "10",
+    
+    "sR_boost": "6.0",
+    
+    "sR_time": "2.5",
+    
+    "slowOnCurves": "0",
+    
+    "steerRateCost": "0.35",
+    
+    "steerRatio": "13.5",
+    
+    "tuneGernby": "1",
+    
+    "wheelTouchSeconds": "300"
+    
+  }

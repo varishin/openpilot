@@ -1,6 +1,7 @@
 #pragma clang diagnostic ignored "-Wexceptions"
 
 #include <cassert>
+#include <string.h>
 #include <stdlib.h>
 #include "common/util.h"
 #include "snpemodel.h"
@@ -13,7 +14,7 @@ void PrintErrorStringAndExit() {
 SNPEModel::SNPEModel(const char *path, float *loutput, size_t loutput_size, int runtime) {
   output = loutput;
   output_size = loutput_size;
-#ifdef QCOM
+#if defined(QCOM) || defined(QCOM2)
   if (runtime==USE_GPU_RUNTIME) {
     Runtime = zdl::DlSystem::Runtime_t::GPU;
   } else if (runtime==USE_DSP_RUNTIME) {
@@ -35,7 +36,7 @@ SNPEModel::SNPEModel(const char *path, float *loutput, size_t loutput_size, int 
   // create model runner
   zdl::SNPE::SNPEBuilder snpeBuilder(container.get());
   while (!snpe) {
-#ifdef QCOM
+#if defined(QCOM) || defined(QCOM2)
     snpe = snpeBuilder.setOutputLayers({})
                       .setRuntimeProcessor(Runtime)
                       .setUseUserSuppliedBuffers(true)
