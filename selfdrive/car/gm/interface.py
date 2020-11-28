@@ -200,7 +200,7 @@ class CarInterface(CarInterfaceBase):
     ret.buttonEvents = buttonEvents
     
     if self.CS.lka_button and self.CS.lka_button != self.CS.prev_lka_button:
-      self.CS.lkMode = not self.CS.lkMode
+#      self.CS.lkMode = not self.CS.lkMode
       self.CS.autoHold = not self.CS.autoHold
       if self.CS.autoHold:
         self.CS.autoHoldActive = True
