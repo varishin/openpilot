@@ -130,12 +130,7 @@ class PathPlanner():
     sr = max(sm['liveParameters'].steerRatio, 0.1)
     VM.update_params(x, sr)
     VM.sR = ntune_get('steerRatio')
-    print("self.steerRatio:",self.steerRatio)   
-    print("VM.sR = ",VM.sR)
-    print("self.steerRateCost:",self.steerRateCost)
-    print("CP.steerRateCost:",CP.steerRateCost)
-    
-      
+    VM.sR = self.steerRatio
 
     curvature_factor = VM.curvature_factor(v_ego)
     
