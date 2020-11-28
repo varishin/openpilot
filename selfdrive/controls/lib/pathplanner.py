@@ -129,7 +129,7 @@ class PathPlanner():
     sr = max(sm['liveParameters'].steerRatio, 0.1)
     VM.update_params(x, sr)
     VM.sR = ntune_get('steerRatio')
-    VM.sR = 16.75
+#    VM.sR = 16.75
     curvature_factor = VM.curvature_factor(v_ego)
     
     # Get steerRatio and steerRateCost from kegman.json every x seconds
