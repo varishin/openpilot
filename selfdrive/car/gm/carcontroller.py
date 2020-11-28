@@ -89,8 +89,7 @@ class CarController():
     # Gas/regen and brakes - all at 25Hz
     if (frame % 4) == 0:
       idx = (frame // 4) % 4
-
-      if not enabled and CS.autoHold and not CS.out.gasPressed and CS.out.gearShifter == 'drive' and CS.out.vEgo < P.NEAR_STOP_BRAKE_PHASE:
+      if not enabled and CS.autoHold and CS.autoHoldActive and not CS.out.gasPressed and CS.out.gearShifter == 'drive' and CS.out.vEgo < 0.01 and not CS.regenPaddlePressed:
         car_stopping = apply_gas < P.ZERO_GAS
         standstill = CS.pcm_acc_status == AccState.STANDSTILL
 
