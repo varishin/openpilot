@@ -213,7 +213,7 @@ class PowerMonitoring:
 
   # See if we need to disable charging
   def should_disable_charging(self, health, offroad_timestamp):
-    if health is None or offroad_timestamp is None
+    if health is None or offroad_timestamp is None:
       return False
 
     now = sec_since_boot()
