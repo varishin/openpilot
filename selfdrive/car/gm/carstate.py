@@ -23,7 +23,6 @@ class CarState(CarStateBase):
     self.autoHold = False
     self.autoHoldActive = False
     self.regenPaddlePressed = 0
-    self.mainOn = False
     self.engineRPM = 0
 
   def update(self, pt_cp):
@@ -70,7 +69,6 @@ class CarState(CarStateBase):
 
     self.park_brake = pt_cp.vl["EPBStatus"]['EPBClosed']
     ret.cruiseState.available = bool(pt_cp.vl["ECMEngineStatus"]['CruiseMainOn'])
-    self.mainOn = ret.cruiseState.available
     ret.espDisabled = pt_cp.vl["ESPStatus"]['TractionControlOn'] != 1
     self.pcm_acc_status = pt_cp.vl["AcceleratorPedal2"]['CruiseState']
 
