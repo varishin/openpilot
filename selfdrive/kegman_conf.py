@@ -135,7 +135,7 @@ class kegman_conf():
         self.element_updated = True
 
       if "AutoHold" not in self.config:
-        self.config.update({"accelerationMode":"0"})
+        self.config.update({"AutoHold":"0"})
         self.element_updated = True
 	
       if self.element_updated:
