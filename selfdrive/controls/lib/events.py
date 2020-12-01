@@ -260,6 +260,14 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
       Priority.LOWER, VisualAlert.none, AudibleAlert.none, 0., 0., 15.),
   },
 
+  EventName.autoHold: {
+    ET.WARNING: Alert(
+      "Auto Hold Engaged",
+      "You can release break, but keep eyes on road",
+      AlertStatus.normal, AlertSize.mid,
+      Priority.LOWEST, VisualAlert.none, AudibleAlert.none, 0., 0., .2, creation_delay=0.5),
+  },  
+  
   EventName.invalidLkasSetting: {
     ET.PERMANENT: Alert(
       "Stock LKAS is turned on",
@@ -696,7 +704,7 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
     ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("Reverse Gear"),
     ET.NO_ENTRY: NoEntryAlert("Reverse Gear"),
   },
-
+ 
   EventName.cruiseDisabled: {
     ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("Cruise Is Off"),
   },
