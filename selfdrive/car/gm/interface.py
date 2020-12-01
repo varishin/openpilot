@@ -278,4 +278,15 @@ class CarInterface(CarInterfaceBase):
                                c.hudControl.leadVisible, c.hudControl.visualAlert)
 
     self.frame += 1
+
+    # Release Auto Hold and creep smoothly when regenpaddle pressed
+    if self.CS.regenPaddlePressed and self.CS.autoHold:
+      self.CS.autoHoldActive = False
+
+    if self.CS.autoHold and not self.CS.autoHoldActive and not self.CS.regenPaddlePressed:
+      if self.CS.out.vEgo > 0.02:
+        self.CS.autoHoldActive = True
+      elif self.CS.out.vEgo < 0.01 and self.CS.out.brakePressed:
+        self.CS.autoHoldActive = True
+        
     return can_sends
