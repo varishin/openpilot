@@ -8,6 +8,9 @@ from common.realtime import sec_since_boot
 from common.params import Params, put_nonblocking
 from common.hardware import TICI
 from selfdrive.swaglog import cloudlog
+from selfdrive.kegman_conf import kegman_conf
+
+kegman = kegman_conf()
 
 PANDA_OUTPUT_VOLTAGE = 5.28
 CAR_VOLTAGE_LOW_PASS_K = 0.091 # LPF gain for 5s tau (dt/tau / (dt/tau + 1))
@@ -229,8 +232,9 @@ class PowerMonitoring:
 
     now = sec_since_boot()
     panda_charging = (health.health.usbPowerMode != log.HealthData.UsbPowerMode.client)
-    BATT_PERC_OFF = 10 if LEON else 3
-
+#    BATT_PERC_OFF = 10 if LEON else 3
+    BATT_PERC_OFF = int(kegman.conf['battPercOff'])
+  
     should_shutdown = False
     # Wait until we have shut down charging before powering down
     should_shutdown |= (not panda_charging and self.should_disable_charging(health, offroad_timestamp))
