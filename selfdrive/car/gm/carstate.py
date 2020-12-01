@@ -6,7 +6,8 @@ from opendbc.can.parser import CANParser
 from selfdrive.car.interfaces import CarStateBase
 from selfdrive.car.gm.values import DBC, CAR, AccState, CanBus, \
                                     CruiseButtons, STEER_THRESHOLD
-
+from selfdrive.kegman_conf import kegman_conf
+kegman = kegman_conf(CP)
 
 class CarState(CarStateBase):
   def __init__(self, CP):
