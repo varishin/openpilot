@@ -90,6 +90,11 @@ class CarState(CarStateBase):
     ret.steeringTorqueEps = pt_cp.vl["PSCMStatus"]['LKATorqueDelivered']
     self.engineRPM = pt_cp.vl["ECMEngineStatus"]['EngineRPM']
 
+    if kegman.conf['autoHold'] == "1":
+      self.autoHold = True
+    else:
+      self.autoHold = False
+      
     return ret
 
 
