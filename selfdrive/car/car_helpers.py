@@ -18,7 +18,8 @@ def get_startup_event(car_recognized, controller_available, hw_type):
   if comma_remote and tested_branch:
     event = EventName.startup
   else:
-    event = EventName.startupMaster
+#    event = EventName.startupMaster
+    event = EventName.startup
 
   if not car_recognized:
     event = EventName.startupNoCar
@@ -176,7 +177,7 @@ def get_car(logcan, sendcan, has_relay=False):
 
   if candidate is None:
     cloudlog.warning("car doesn't match any fingerprints: %r", fingerprints)
-    candidate = "mock"
+    candidate = "CHEVROLET VOLT PREMIER 2017"
 
   CarInterface, CarController, CarState = interfaces[candidate]
   car_params = CarInterface.get_params(candidate, fingerprints, has_relay, car_fw)
