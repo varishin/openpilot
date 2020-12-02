@@ -246,7 +246,7 @@ class CarInterface(CarInterfaceBase):
       events.add(EventName.controlsFailed)
     if ret.vEgo < self.CP.minSteerSpeed:
       events.add(car.CarEvent.EventName.belowSteerSpeed)
-    if self.CS.autoHold and self.CS.autoHoldActive and not cruiseEnabled and self.CS.out.vEgo < 0.01:
+    if self.CS.autoHold and not cruiseEnabled and self.CS.out.vEgo < 0.01:
       events.add(EventName.brakeHold)
       
     # handle button presses
