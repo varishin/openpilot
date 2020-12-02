@@ -246,8 +246,8 @@ class CarInterface(CarInterfaceBase):
       events.add(EventName.controlsFailed)
     if ret.vEgo < self.CP.minSteerSpeed:
       events.add(car.CarEvent.EventName.belowSteerSpeed)
-    if self.CS.autoHold and not cruiseEnabled and self.CS.out.vEgo < 0.01:
-      events.add(EventName.reverseGear)
+    if self.CS.out.autoHold and self.CS.out.cruiseMain and not cruiseEnabled and self.CS.out.vEgo < 0.01:
+      events.add(EventName.breakHold) # not working yet
       
     # handle button presses
     for b in ret.buttonEvents:
