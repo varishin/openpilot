@@ -21,8 +21,9 @@ class CarState(CarStateBase):
     self.distance_button = 0
     self.follow_level = 3
     self.lkMode = True
-    self.autoHold = True
+    self.autoHold = False
     self.autoHoldActive = False
+    self.autoHoldActivated = False
     self.regenPaddlePressed = 0
     self.cruiseMain = False
     self.engineRPM = 0
