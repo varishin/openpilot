@@ -96,6 +96,8 @@ class CarState(CarStateBase):
       self.autoHold = True
     else:
       self.autoHold = False
+
+    ret.autoHoldActivated = self.autoHoldActivated
       
     return ret
 
