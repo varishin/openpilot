@@ -217,7 +217,9 @@ class CarInterface(CarInterfaceBase):
       events.add(EventName.controlsFailed)
     if ret.vEgo < self.CP.minSteerSpeed:
       events.add(car.CarEvent.EventName.belowSteerSpeed)
-
+    if self.CS.autoHoldActivated:
+      events.add(car.CarEvent.EventName.autoHoldActivated)
+      
     # handle button presses
     for b in ret.buttonEvents:
       # do enable on both accel and decel buttons
@@ -246,9 +248,7 @@ class CarInterface(CarInterfaceBase):
       events.add(EventName.controlsFailed)
     if ret.vEgo < self.CP.minSteerSpeed:
       events.add(car.CarEvent.EventName.belowSteerSpeed)
-    if self.CS.out.autoHoldActivated:
-      events.add(car.CarEvent.EventName.belowSteerSpeed)
-      
+
     # handle button presses
     for b in ret.buttonEvents:
       # do enable on both accel and decel buttons
