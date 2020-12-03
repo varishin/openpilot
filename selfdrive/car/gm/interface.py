@@ -247,7 +247,7 @@ class CarInterface(CarInterfaceBase):
     if ret.vEgo < self.CP.minSteerSpeed:
       events.add(car.CarEvent.EventName.belowSteerSpeed)
     if self.CS.out.autoHoldActivated:
-      events.add(car.CarEvent.EventName.breakHold)
+      events.add(car.CarEvent.EventName.belowSteerSpeed)
       
     # handle button presses
     for b in ret.buttonEvents:
