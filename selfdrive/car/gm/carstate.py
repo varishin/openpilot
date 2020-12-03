@@ -18,11 +18,13 @@ class CarState(CarStateBase):
     self.prev_lka_button = 0
     self.lka_button = 0
     self.distance_button = 0
-    self.follow_level = 2
+    self.follow_level = 3
     self.lkMode = True
     self.autoHold = False
     self.autoHoldActive = False
+    self.autoHoldActivated = False
     self.regenPaddlePressed = 0
+    self.cruiseMain = False
     self.engineRPM = 0
 
   def update(self, pt_cp):
@@ -88,6 +90,13 @@ class CarState(CarStateBase):
     ret.steeringTorqueEps = pt_cp.vl["PSCMStatus"]['LKATorqueDelivered']
     self.engineRPM = pt_cp.vl["ECMEngineStatus"]['EngineRPM']
 
+    if kegman.conf['AutoHold'] == "1":
+      self.autoHold = True
+    else:
+      self.autoHold = False
+
+    ret.autoHoldActivated = self.autoHoldActivated
+    
     return ret
 
 
