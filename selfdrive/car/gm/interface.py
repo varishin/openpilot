@@ -188,8 +188,8 @@ class CarInterface(CarInterfaceBase):
         if not (ret.cruiseState.enabled and ret.standstill):
           be.type = ButtonType.accelCruise  # Suppress resume button if we're resuming from stop so we don't adjust speed.
       elif but == CruiseButtons.DECEL_SET:
-#        if not cruiseEnabled and not self.CS.lkMode:
-#          self.lkMode = True
+        if not cruiseEnabled and not self.CS.lkMode:
+          self.lkMode = True
         be.type = ButtonType.decelCruise
       elif but == CruiseButtons.CANCEL:
         be.type = ButtonType.cancel
@@ -199,11 +199,9 @@ class CarInterface(CarInterfaceBase):
 
     ret.buttonEvents = buttonEvents
     
-    if self.CS.lka_button and self.CS.lka_button != self.CS.prev_lka_button:
-#      self.CS.lkMode = not self.CS.lkMode
-      self.CS.autoHold = not self.CS.autoHold
-      if self.CS.autoHold:
-        self.CS.autoHoldActive = True
+    if cruiseEnabled and self.CS.lka_button and self.CS.lka_button != self.CS.prev_lka_button:
+      self.CS.lkMode = not self.CS.lkMode
+
     if self.CS.distance_button and self.CS.distance_button != self.CS.prev_distance_button:
        self.CS.follow_level -= 1
        if self.CS.follow_level < 1:
@@ -219,7 +217,8 @@ class CarInterface(CarInterfaceBase):
 #      events.add(EventName.controlsFailed)
 #    if ret.vEgo < self.CP.minSteerSpeed:
 #      events.add(car.CarEvent.EventName.belowSteerSpeed)
-
+    if self.CS.autoHoldActivated:
+      events.add(car.CarEvent.EventName.autoHoldActivated)
     # handle button presses
     for b in ret.buttonEvents:
       # do enable on both accel and decel buttons
@@ -281,6 +280,7 @@ class CarInterface(CarInterfaceBase):
 
     self.frame += 1
 
+    # Release Auto Hold and creep smoothly when regenpaddle pressed
     if self.CS.regenPaddlePressed and self.CS.autoHold:
       self.CS.autoHoldActive = False
 
@@ -289,5 +289,5 @@ class CarInterface(CarInterfaceBase):
         self.CS.autoHoldActive = True
       elif self.CS.out.vEgo < 0.01 and self.CS.out.brakePressed:
         self.CS.autoHoldActive = True
-
+        
     return can_sends
