@@ -22,6 +22,7 @@ from selfdrive.controls.lib.vehicle_model import VehicleModel
 from selfdrive.controls.lib.planner import LON_MPC_STEP
 from selfdrive.locationd.calibrationd import Calibration
 from selfdrive.ntune import ntune_get
+from selfdrive.road_speed_limiter import road_speed_limiter_get_max_speed
 
 cameraOffset = ntune_get("cameraOffset")
 CAMERA_OFFSET = cameraOffset
@@ -128,6 +129,7 @@ class Controls:
     self.last_functional_fan_frame = 0
     self.events_prev = []
     self.current_alert_types = [ET.PERMANENT]
+    self.road_limit_speed = 0
 
     self.sm['liveCalibration'].calStatus = Calibration.CALIBRATED
     self.sm['thermal'].freeSpace = 1.
@@ -287,6 +289,10 @@ class Controls:
       self.v_cruise_kph = update_v_cruise(self.v_cruise_kph, CS.buttonEvents, self.enabled)
     elif self.CP.enableCruise and CS.cruiseState.enabled:
       self.v_cruise_kph = CS.cruiseState.speed * CV.MS_TO_KPH
+
+    limit_speed, self.road_limit_speed = road_speed_limiter_get_max_speed(CS, self.v_cruise_kph)
+    if limit_speed >= 30:
+      self.v_cruise_kph = min(self.v_cruise_kph, limit_speed)
 
     # decrease the soft disable timer at every step, as it's reset on
     # entrance in SOFT_DISABLING state
@@ -506,6 +512,8 @@ class Controls:
     controlsState.mapValid = self.sm['plan'].mapValid
     controlsState.forceDecel = bool(force_decel)
     controlsState.canErrorCounter = self.can_error_counter
+
+    controlsState.roadLimitSpeed = self.road_limit_speed
 
     if self.CP.lateralTuning.which() == 'pid':
       controlsState.lateralControlState.pidState = lac_log
