@@ -22,6 +22,7 @@ extern "C"{
 
 #include "paint.hpp"
 #include "sidebar.hpp"
+#include "extras.h"
 int border_shifter = 20; //Use this to move elements around depending on how much bdr_s is changed -wirelessnet2
 
 
@@ -481,6 +482,7 @@ static void ui_draw_vision_header(UIState *s) {
   ui_draw_vision_maxspeed(s);
   ui_draw_vision_speed(s);
   ui_draw_vision_event(s);
+  ui_draw_extras(s);
 }
 
 //BB START: functions added for the display of various items
