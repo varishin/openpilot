@@ -6,7 +6,7 @@ from statistics import mean
 from cereal import log
 from common.realtime import sec_since_boot
 from common.params import Params, put_nonblocking
-from common.hardware import TICI
+from selfdrive.hardware import TICI
 from selfdrive.swaglog import cloudlog
 from selfdrive.kegman_conf import kegman_conf
 
