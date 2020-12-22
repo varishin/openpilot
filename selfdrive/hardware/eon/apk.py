@@ -6,7 +6,7 @@ import shutil
 from common.basedir import BASEDIR
 from selfdrive.swaglog import cloudlog
 
-android_packages = ("ai.comma.plus.offroad", "com.neokii.openpilot", "com.neokii.oproadlimit")
+android_packages = ("ai.comma.plus.offroad", "com.neokii.openpilot", "com.neokii.oproadlimit",)
 
 def get_installed_apks():
   dat = subprocess.check_output(["pm", "list", "packages", "-f"], encoding='utf8').strip().split("\n")
@@ -30,9 +30,9 @@ def start_offroad():
   set_package_permissions()
   system("am start -n ai.comma.plus.offroad/.MainActivity")
   pm_grant("com.neokii.openpilot", "android.permission.ACCESS_FINE_LOCATION")
-  system("am startservice com.neokii.openpilot/.MainService")  
+  system("am startservice com.neokii.openpilot/.MainService")
   system("am startservice com.neokii.oproadlimit/.MainService")
-
+  
 def set_package_permissions():
   try:
     output = subprocess.check_output(['dumpsys', 'package', 'ai.comma.plus.offroad'], encoding="utf-8")
