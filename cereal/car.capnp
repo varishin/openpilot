@@ -106,6 +106,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     manualSteeringRequired @94;
     manualSteeringRequiredBlinkersOn @95;
     autoHoldActivated @96;
+    slowingDownSpeed @97;
 
     gasUnavailableDEPRECATED @3;
     dataNeededDEPRECATED @16;

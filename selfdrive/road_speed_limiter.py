@@ -14,6 +14,7 @@ class RoadSpeedLimiter:
   def __init__(self):
     self.json = None
     self.last_updated = 0
+    self.slowing_down = False
 
     try:
       os.remove(LIMIT_FILE)
@@ -46,12 +47,12 @@ class RoadSpeedLimiter:
 
   def get_max_speed(self, CS, v_cruise_kph):
 
-    if current_milli_time() - self.last_updated > 1000 * 10:
-      return 0, 0
+    if current_milli_time() - self.last_updated > 1000 * 20:
+      log = "expired: {:d}, {:d}".format(current_milli_time(), self.last_updated)
+      self.slowing_down = False
+      return 0, 0, 0, log
 
     try:
-
-      # car_speed_kph = CS.vEgo * 3.6
 
       road_limit_speed = self.get_val('road_limit_speed')
       is_highway = self.get_val('is_highway')
@@ -75,22 +76,35 @@ class RoadSpeedLimiter:
         MIN_LIMIT = 30
         MAX_LIMIT = 120
 
-      if cam_limit_speed_left_dist is not None and cam_limit_speed is not None and cam_limit_speed_left_dist > 0:
-        if MIN_LIMIT <= cam_limit_speed <= MAX_LIMIT and cam_limit_speed_left_dist < (cam_limit_speed / 3.6) * 10:
-          return cam_limit_speed, cam_limit_speed
+      log = "RECV: " + str(is_highway)
+      log += ", " + str(cam_limit_speed)
+      log += ", " + str(cam_limit_speed_left_dist)
+      log += ", " + str(section_limit_speed)
+      log += ", " + str(section_left_dist)
 
-        return 0, cam_limit_speed
+      if cam_limit_speed_left_dist is not None and cam_limit_speed is not None and cam_limit_speed_left_dist > 0:
+        if MIN_LIMIT <= cam_limit_speed <= MAX_LIMIT and (self.slowing_down or cam_limit_speed_left_dist < CS.vEgo * 10):
+
+          self.slowing_down = True
+          return cam_limit_speed, cam_limit_speed, cam_limit_speed_left_dist, log
+
+        self.slowing_down = False
+        return 0, cam_limit_speed, cam_limit_speed_left_dist, log
 
       elif section_left_dist is not None and section_limit_speed is not None and section_left_dist > 0:
         if MIN_LIMIT <= section_limit_speed <= MAX_LIMIT:
-          return section_limit_speed, section_limit_speed
+          self.slowing_down = True
+          return section_limit_speed, section_limit_speed, section_left_dist, log
 
-        return 0, section_limit_speed
+        self.slowing_down = False
+        return 0, section_limit_speed, section_left_dist, log
 
-    except:
+    except Exception as e:
+      log = "Ex: " + str(e)
       pass
 
-    return 0, 0
+    self.slowing_down = False
+    return 0, 0, 0, log
 
 
 road_speed_limiter = None
